@@ -16,7 +16,7 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 			
 			@Override
 			public String getDescription() {
-				return "Tài liệu Microsoft Word 97/2000";
+				return "T\u00E0i li\u1EC7u Microsoft Word 97/2000";
 			}
 			
 			@Override
