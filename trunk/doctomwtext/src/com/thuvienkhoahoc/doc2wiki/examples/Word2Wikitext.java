@@ -40,6 +40,8 @@ public final class Word2Wikitext
   public Word2Wikitext(HWPFDocument doc, OutputStream stream)
     throws IOException, UnsupportedEncodingException
   {
+	  
+	  // bagd
     OutputStreamWriter out = new OutputStreamWriter (stream, "UTF-8");
     _out = out;
     _doc = doc;
