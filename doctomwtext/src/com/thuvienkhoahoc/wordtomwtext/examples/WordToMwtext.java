@@ -15,7 +15,7 @@
    limitations under the License.
 ==================================================================== */
 
-package com.thuvienkhoahoc.doc2wiki.examples;
+package com.thuvienkhoahoc.wordtomwtext.examples;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -32,12 +32,12 @@ import org.apache.poi.hwpf.usermodel.CharacterRun;
 import org.apache.poi.hwpf.usermodel.Paragraph;
 import org.apache.poi.hwpf.usermodel.Range;
 
-public final class Word2Wikitext
+public final class WordToMwtext
 {
   Writer _out;
   HWPFDocument _doc;
 
-  public Word2Wikitext(HWPFDocument doc, OutputStream stream)
+  public WordToMwtext(HWPFDocument doc, OutputStream stream)
     throws IOException, UnsupportedEncodingException
   {
 	  
@@ -228,7 +228,7 @@ public final class Word2Wikitext
     {
       OutputStream out = new FileOutputStream("c:\\test.wikitext");
 
-      new Word2Wikitext(new HWPFDocument(new FileInputStream(args[0])), out);
+      new WordToMwtext(new HWPFDocument(new FileInputStream(args[0])), out);
       out.close();
     }
     catch (Throwable t)
