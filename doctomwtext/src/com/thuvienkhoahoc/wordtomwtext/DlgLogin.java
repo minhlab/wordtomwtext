@@ -34,10 +34,10 @@ public class DlgLogin extends JDialog {
 	private void initComponents() {
 		setLocationByPlatform(true);
 		setModal(true);
-		setTitle("Đăng nhập");
+		setTitle("\u0110\u0103ng nh\u1EADp");
 		getContentPane().setLayout(layoutMain);
 
-		lblSite.setText("Địa chỉ:");
+		lblSite.setText("\u0110\u1ECBa ch\u1EC9:");
 		getContentPane().add(
 				lblSite,
 				new GridBagConstraints(0, 0, 1, 1, 0, 0,
@@ -52,7 +52,7 @@ public class DlgLogin extends JDialog {
 						GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
 						new Insets(5, 0, 0, 5), 0, 0));
 
-		lblUsername.setText("Người dùng:");
+		lblUsername.setText("Ng\u01B0\u1EDDi d\u00F9ng:");
 		getContentPane().add(
 				lblUsername,
 				new GridBagConstraints(0, 1, 1, 1, 0, 0,
@@ -66,7 +66,7 @@ public class DlgLogin extends JDialog {
 						GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
 						new Insets(2, 0, 0, 5), 0, 0));
 
-		lblPassword.setText("Mật khẩu:");
+		lblPassword.setText("M\u1EADt kh\u1EA9u:");
 		getContentPane().add(
 				lblPassword,
 				new GridBagConstraints(0, 2, 1, 1, 0, 0,
@@ -81,7 +81,7 @@ public class DlgLogin extends JDialog {
 		pnlButton.setLayout(layoutButton);
 		
 		getRootPane().setDefaultButton(btnOk);
-		btnOk.setText("Đăng nhập");
+		btnOk.setText("\u0110\u0103ng nh\u1EADp");
 		btnOk.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent arg0) {
@@ -90,7 +90,7 @@ public class DlgLogin extends JDialog {
 		});
 		pnlButton.add(btnOk);
 		
-		btnCancel.setText("Thoát");
+		btnCancel.setText("Tho\u00E1t");
 		btnCancel.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
@@ -120,11 +120,11 @@ public class DlgLogin extends JDialog {
 					String.valueOf(txtPassword.getPassword()));
 			setVisible(false);
 		} catch (MalformedURLException e) {
-			JOptionPane.showMessageDialog(this, "Đường dẫn sai. Mời bạn nhập lại");
+			JOptionPane.showMessageDialog(this, "\u0110\u01B0\u1EDDng d\u1EABn sai. M\u1EDDi b\u1EA1n nh\u1EADp l\u1EA1i");
 			txtSite.selectAll();
 			txtSite.requestFocusInWindow();
 		} catch (ActionException e) {
-			JOptionPane.showMessageDialog(this, "Không đăng nhập được. Có thể người dùng và/hoặc mật khẩu của bạn không chính xác");
+			JOptionPane.showMessageDialog(this, "Kh\u00F4ng \u0111\u0103ng nh\u1EADp \u0111\u01B0\u1EE3c. C\u00F3 th\u1EC3 ng\u01B0\u1EDDi d\u00F9ng v\u00E0/ho\u1EB7c m\u1EADt kh\u1EA9u c\u1EE7a b\u1EA1n kh\u00F4ng ch\u00EDnh x\u00E1c");
 			txtUsername.selectAll();
 			txtUsername.requestFocusInWindow();
 		}
