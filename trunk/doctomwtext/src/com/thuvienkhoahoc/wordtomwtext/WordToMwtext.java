@@ -1,5 +1,5 @@
 package com.thuvienkhoahoc.wordtomwtext;
- 
+
 import org.apache.poi.hwpf.HWPFDocument; 
 import org.apache.poi.hwpf.usermodel.Paragraph; 
 import org.apache.poi.hwpf.usermodel.Table; 
@@ -24,12 +24,22 @@ import java.io.*; //tam thoi dung tat ca cac goi, sau nay se rut gon
 
 public class WordToMwtext { 
 	//
+	// messages: Hinh, trai, giua, phai, Hinh minh hoa
+	//
+	public static final String MS_IMAGE = "H\u00ECnh";
+	public static final String MS_LEFT = "tr\u00E1i";
+	public static final String MS_CENTER = "gi\u1EEFa";
+	public static final String MS_RIGHT = "ph\u1EA3i";
+	public static final String MS_CAPTION = "H\u00ECnh minh h\u1ECDa";
+	//
 	// ma xuong hang cua mediawiki (mw), thong thuong no se duoc cong them
 	// sau khi ghi mot doan van vao tep
 	//
 	public static final String NEW_LINE = "\n\n";
 	public static final String SPACE = " ";
 	public static final String DIR_NAME = "thuvienkhoahoc.com";
+	public static final String TAG_HEADER[] = {"","=","==","===","====","=====",
+												"======","=======","========"};
 	//
 	// cac bien toan cuc trong lop
 	//
@@ -50,15 +60,6 @@ public class WordToMwtext {
 		return reStr;
 	}
 	//
-	// ham lay ma mw cho tieu de cap level
-	// chung ta co the thay ham nay bang mot bien array<String> toan cuc
-	//
-	protected String getHeader(int level) {
-		String str = "";
-		for (int i = 1; i <= level; i++) str +="=";
-		return str;
-	}
-	//
 	// ham convert mot doi tuong CharacterRun thanh wikitext
 	//
 	protected String charToWiki(CharacterRun run)
@@ -72,12 +73,15 @@ public class WordToMwtext {
 			//
 			// false de dung writeImageContent,
 			// true thi phai doc tung byte va dung getContent(pic)
+			// neu la images, tuc co phan mo rong thi moi tao ma wiki
 			//
 			Picture pic = picTable.extractPicture(run,false);
-			String namePic = nameInput+"-"+pic.suggestFullFileName();
-			OutputStream outPic = new FileOutputStream(DIR_NAME+"\\"+namePic);
-			pic.writeImageContent(outPic);
-			textR += "[[Image:"+namePic+"|center|150px|H\u00ECnh minh h\u1ECDa]]";//Hi`nh minh ho.a
+			if (pic.suggestFileExtension().length() > 0){
+				String namePic = nameInput+"-"+pic.suggestFullFileName();
+				OutputStream outPic = new FileOutputStream(DIR_NAME+"\\"+namePic);
+				pic.writeImageContent(outPic);
+				textR += "[["+MS_IMAGE+":"+namePic+"|"+MS_CENTER+"|150px|"+MS_CAPTION+"]]";
+			}
 		}
 		else
 		{	textR += run.text();
@@ -148,10 +152,9 @@ public class WordToMwtext {
 				mwText = addMore(mwText,"</title>");
 				mwText = "<title>"+ mwText;
 			}
-			if (headerLevel > 0) {
-				String strHeader = getHeader(headerLevel);
-				mwText = addMore(mwText,SPACE + strHeader);
-				mwText = strHeader + SPACE + mwText;
+			if ((headerLevel > 0)&&(headerLevel <= 9)) {
+				mwText = addMore(mwText,SPACE + TAG_HEADER[headerLevel]);
+				mwText = TAG_HEADER[headerLevel] + SPACE + mwText;
 			}
 		}
 		//
