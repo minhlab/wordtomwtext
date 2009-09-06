@@ -43,9 +43,10 @@ public class DlgLogin extends JDialog {
 				new GridBagConstraints(0, 0, 1, 1, 0, 0,
 						GridBagConstraints.EAST, GridBagConstraints.NONE,
 						new Insets(5, 5, 0, 3), 0, 0));
-		//TODO remove default site
-		txtSite.setText("http://thuvienkhoahoc.com/tusach/"); 
-		txtSite.setPreferredSize(new Dimension(150, txtSite.getPreferredSize().height));
+		// TODO remove default site
+		txtSite.setText("http://thuvienkhoahoc.com/tusach/");
+		txtSite.setPreferredSize(new Dimension(150,
+				txtSite.getPreferredSize().height));
 		getContentPane().add(
 				txtSite,
 				new GridBagConstraints(1, 0, 1, 1, 1.0, 0,
@@ -58,7 +59,7 @@ public class DlgLogin extends JDialog {
 				new GridBagConstraints(0, 1, 1, 1, 0, 0,
 						GridBagConstraints.EAST, GridBagConstraints.NONE,
 						new Insets(0, 5, 0, 3), 0, 0));
-		//TODO remove default user
+		// TODO remove default user
 		txtUsername.setText("Cumeo89");
 		getContentPane().add(
 				txtUsername,
@@ -77,22 +78,22 @@ public class DlgLogin extends JDialog {
 				new GridBagConstraints(1, 2, 1, 1, 1.0, 0,
 						GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
 						new Insets(2, 0, 0, 5), 0, 0));
-		
+
 		pnlButton.setLayout(layoutButton);
-		
+
 		getRootPane().setDefaultButton(btnOk);
 		btnOk.setText("Đăng nhập");
 		btnOk.addActionListener(new ActionListener() {
-			
+
 			public void actionPerformed(ActionEvent arg0) {
 				onLogin();
 			}
 		});
 		pnlButton.add(btnOk);
-		
+
 		btnCancel.setText("Thoát");
 		btnCancel.addActionListener(new ActionListener() {
-			
+
 			public void actionPerformed(ActionEvent e) {
 				onCancel();
 			}
@@ -104,7 +105,7 @@ public class DlgLogin extends JDialog {
 				new GridBagConstraints(0, 3, 2, 1, 0, 0,
 						GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 						new Insets(2, 5, 5, 5), 0, 0));
-		
+
 		pack();
 	}
 
@@ -116,20 +117,22 @@ public class DlgLogin extends JDialog {
 	protected void onLogin() {
 		try {
 			bot = new MediaWikiBot(txtSite.getText());
-			bot.login(txtUsername.getText(), 
-					String.valueOf(txtPassword.getPassword()));
+			bot.login(txtUsername.getText(), String.valueOf(txtPassword
+					.getPassword()));
 			setVisible(false);
 		} catch (MalformedURLException e) {
-			JOptionPane.showMessageDialog(this, "Đường dẫn sai. Mời bạn nhập lại");
+			JOptionPane.showMessageDialog(this, "Lỗi đăng nhập",
+					"Đường dẫn sai. Mời bạn nhập lại", JOptionPane.ERROR_MESSAGE);
 			txtSite.selectAll();
 			txtSite.requestFocusInWindow();
 		} catch (ActionException e) {
-			JOptionPane.showMessageDialog(this, "Không đăng nhập được. Có thể người dùng và/hoặc mật khẩu của bạn không chính xác");
+			JOptionPane.showMessageDialog(this, e.getMessage(),
+					"Lỗi đăng nhập", JOptionPane.ERROR_MESSAGE);
 			txtUsername.selectAll();
 			txtUsername.requestFocusInWindow();
 		}
 	}
-	
+
 	public String getUsername() {
 		return txtUsername.getText();
 	}
