@@ -38,8 +38,7 @@ public class WordToMwtext {
 	public static final String NEW_LINE = "\n\n";
 	public static final String SPACE = " ";
 	public static final String DIR_NAME = "thuvienkhoahoc.com";
-	public static final String TAG_HEADER[] = {"","=","==","===","====","=====",
-												"======","=======","========"};
+	public static final String TAG_HEADER[] = {"","=","==","===","====","=====","======","=======","========"};
 	//
 	// cac bien toan cuc trong lop
 	//
