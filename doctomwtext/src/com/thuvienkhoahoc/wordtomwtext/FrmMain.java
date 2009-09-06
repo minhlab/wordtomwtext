@@ -29,9 +29,9 @@ public class FrmMain extends JFrame {
 	private void initComponents() {
 		setTitle("Wordtomwtext - By VLOS");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		//chon tu lieu Word, Chinh sua noi dung, Tai len
-		createTabbedPane(new String[] { "Ch\u1ECDn t\u00E0i li\u1EC7u Word",
-				"Ch\u1EC9nh s\u1EEDa n\u1ED9i dung", "T\u1EA3i l\u00EAn" },
+
+		createTabbedPane(new String[] { "Chọn tài liệu Word",
+				"Chỉnh sửa nội dung", "Tải lên" },
 				new AbstractFunctionalPanel[] { new PnlFileChooser(),
 				new PnlWikiEditor(), new PnlUploader() });
 
@@ -43,8 +43,8 @@ public class FrmMain extends JFrame {
 		
 		lblUsername.setText(Application.getInstance().getUsername());
 		pnlToolbar.add(lblUsername);
-		// (dang nhap lai)
-		lblSignIn.setText(" (\u0111\u0103ng nh\u1EADp l\u1EA1i)");
+
+		lblSignIn.setText(" (đăng nhập lại)");
 		lblSignIn.setForeground(Color.BLUE);
 		lblSignIn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		lblSignIn.addMouseListener(new MouseAdapter() {
@@ -61,8 +61,8 @@ public class FrmMain extends JFrame {
 
 		// init button panel
 		pnlButton.setLayout(layoutButton);
-		//Quay lai
-		btnBack.setText("Quay l\u1EA1i");
+
+		btnBack.setText("Quay lại");
 		btnBack.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -70,8 +70,8 @@ public class FrmMain extends JFrame {
 			}
 		});
 		pnlButton.add(btnBack);
-		//Tiep tuc
-		btnNext.setText("Ti\u1EBFp t\u1EE5c");
+
+		btnNext.setText("Tiếp tục");
 		btnNext.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -124,9 +124,9 @@ public class FrmMain extends JFrame {
 		btnBack.setEnabled(selectedIndex > 0);
 		btnNext.setEnabled(selectedIndex < tabLabels.length - 1);
 		if (selectedIndex == tabLabels.length - 1) {
-			btnNext.setText("Ho\u00E0n th\u00E0nh");//Hoan thanh
+			btnNext.setText("Hoàn thành");
 		} else {
-			btnNext.setText("Ti\u1EBFp t\u1EE5c");//Tiep tuc
+			btnNext.setText("Tiếp tục");
 		}
 	}
 
