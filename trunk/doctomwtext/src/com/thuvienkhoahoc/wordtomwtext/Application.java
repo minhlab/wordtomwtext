@@ -1,6 +1,8 @@
 package com.thuvienkhoahoc.wordtomwtext;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.SwingUtilities;
 
@@ -11,7 +13,8 @@ public class Application {
 	private DlgLogin dlgLogin = new DlgLogin(null);
 	private MediaWikiBot bot;
 	private String username;
-	private File wordFile;
+	private ArrayList<File> files = new ArrayList<File>();
+	private ArrayList<Page> pages = new ArrayList<Page>();
 
 	private Application() {
 	}
@@ -31,12 +34,16 @@ public class Application {
 		return bot != null;
 	}
 
-	public File getWordFile() {
-		return wordFile;
+	/*
+	 * Accessors
+	 */
+	
+	public List<File> getFiles() {
+		return files;
 	}
 	
-	public void setWordFile(File wordFile) {
-		this.wordFile = wordFile;
+	public List<Page> getPages() {
+		return pages;
 	}
 	
 	private void run() {

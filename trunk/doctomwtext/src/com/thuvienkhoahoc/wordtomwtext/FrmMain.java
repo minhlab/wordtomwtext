@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -61,6 +62,7 @@ public class FrmMain extends JFrame {
 
 		// init button panel
 		pnlButton.setLayout(layoutButton);
+		pnlButton.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
 
 		btnBack.setText("Quay lại");
 		btnBack.addActionListener(new ActionListener() {
