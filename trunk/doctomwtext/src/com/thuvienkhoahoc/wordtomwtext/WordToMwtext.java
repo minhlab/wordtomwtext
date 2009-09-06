@@ -12,6 +12,7 @@ import org.apache.poi.hwpf.model.StyleDescription;
 import org.apache.poi.hwpf.model.PicturesTable;
 import org.apache.poi.hwpf.usermodel.Picture;
 
+//import java.lang.Math;
 import java.io.*; //tam thoi dung tat ca cac goi, sau nay se rut gon
 
 /** 
@@ -45,10 +46,12 @@ public class WordToMwtext {
 	HWPFDocument doc;
 	StyleSheet styleSheet;
 	PicturesTable picTable;
-	String nameInput = "picture";
+	String nameInput = "tablerow";
 	String mwUlList ="";
 	byte numEnter = 2;
 	String Enter[] = {"","\n","\n\n"};
+	int maxColTable;
+	int maxWidTable;
 	//
 	// ham them tag mw vao duoi str cho mot character
 	// no them tag mw vao dang truoc ki tu xuong hang neu co
@@ -216,13 +219,40 @@ public class WordToMwtext {
 		return mwText;
 	}
     /** 
+    * ham lay so cot lon nhat va chieu dai lon nhat trong bang
+    * 
+     */ 
+	protected void maxColWidth(Table table){
+		maxColTable = 1;
+		maxWidTable = 0;
+		int row=0;
+		for(int i = 0; i < table.numRows(); i++){
+			if (table.getRow(i).numCells() > maxColTable) {
+				maxColTable = table.getRow(i).numCells();
+				row = i;
+			}
+		}
+		for (int j = 0; j < maxColTable; j++)
+			maxWidTable += table.getRow(row).getCell(j).getWidth();
+	}
+	//
+	//
+	//
+	protected int sugColSpan(int width){
+		float frac = (float) maxColTable/maxWidTable*width;
+		return (int) Math.round(frac);
+	}
+    /** 
     * ham convert mot bang do)n "clone table", tuc la bang khong chua bang con trong no
-    * hien tai, ham xu li tot cho kieu bang khong co su tron cac o^/cell cung hang
+    * 
      */ 
 	protected String tableToWiki(Table tab)
 		throws IOException, UnsupportedEncodingException  
 	{
+		
 		Table table = tab;
+		maxColWidth(tab);
+		
 		String mwText = "";
 		//
 		// chung ta dung mot mang so nguyen de dem so o (cell) duoc tro^.n (merged) trong cung mot row
@@ -237,25 +267,38 @@ public class WordToMwtext {
 		for (int i = table.numRows()-1; i > -1  ; i--){//duyet cac hang tu duoi len
 			TableRow row = table.getRow(i);
 			String strRow = "\n|- valign=\"top\"";//bat dau mot hang moi
-			for (int j = 0; j < row.numCells(); j++){
+			int numCell = row.numCells();
+			for (int j = 0; j < maxColTable; j++){
+				String option = "";
+				if ( j < numCell){
 				TableCell cell = row.getCell(j);
+					if (numCell < maxColTable)
+						if (sugColSpan(cell.getWidth()) > 1)
+							option += "colspan=\""+sugColSpan(cell.getWidth())+"\"";
 				int numParas = cell.numParagraphs();
 				String strCells ="";
 				for (int k=0; k < numParas; k ++){
 					Paragraph para = cell.getParagraph(k);
 					strCells += paraToWiki(para);
+					if (k < numParas-1) strCells += Enter[numEnter];
+					numEnter = 2;//tra ve mac dinh
 				}
 				if (cell.isVerticallyMerged()){//neu o nay duoc tron
 					if (cell.isFirstVerticallyMerged()){//va la o dau tien
-						String oprowspan = "rowspan=\""+rowspan[j]+"\"|";
-						strRow += "|" + oprowspan + strCells;
+						option += " rowspan=\""+rowspan[j]+"\"|";
+						strRow += "\n|" + option + strCells;
 						rowspan[j] = 1;//mac dinh moi cell mot hang
 					}
 					else
 						rowspan[j] += 1;//tang so rowspan cho cot nay
 				}
 				else
-					strRow += "\n|" + strCells;
+					if (option=="") strRow += "\n|" + strCells;
+					else
+						strRow += "\n|" + option + "|\n" + strCells;
+				}
+				else
+					if (i < table.numRows()-1) rowspan[j] += 1;
 			}//xu li xong mot hang
 			mwText = strRow + mwText;
 		}//xu li xong ca bang
