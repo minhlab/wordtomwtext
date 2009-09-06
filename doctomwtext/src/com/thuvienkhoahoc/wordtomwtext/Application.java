@@ -40,16 +40,16 @@ public class Application {
 	}
 	
 	private void run() {
-		// initialize
-		if (!login()) {
-			System.out.println("Can't login, application closed.");
-			return;
-		}
-
-		// run main frame
 		SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {
+				// initialize
+				if (!login()) {
+					System.out.println("Can't login, application closed.");
+					return;
+				}
+
+				// run main frame
 				new FrmMain().setVisible(true);
 			}
 		});
