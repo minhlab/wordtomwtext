@@ -19,7 +19,7 @@ import java.io.*; //tam thoi dung tat ca cac goi, sau nay se rut gon
  * TEST CODE ONLY. 
  * 
  * @author Nguyen The Phuc 
- * @version 1.00 04 09 2009. 
+ * @version 1.00 07 09 2009. 
  */ 
 
 public class WordToMwtext { 
@@ -35,7 +35,6 @@ public class WordToMwtext {
 	// ma xuong hang cua mediawiki (mw), thong thuong no se duoc cong them
 	// sau khi ghi mot doan van vao tep
 	//
-	public static final String NEW_LINE = "\n\n";
 	public static final String SPACE = " ";
 	public static final String DIR_NAME = "thuvienkhoahoc.com";
 	public static final String TAG_HEADER[] = {"","=","==","===","====","=====","======","=======","========"};
@@ -47,6 +46,9 @@ public class WordToMwtext {
 	StyleSheet styleSheet;
 	PicturesTable picTable;
 	String nameInput = "picture";
+	String mwUlList ="";
+	byte numEnter = 2;
+	String Enter[] = {"","\n","\n\n"};
 	//
 	// ham them tag mw vao duoi str cho mot character
 	// no them tag mw vao dang truoc ki tu xuong hang neu co
@@ -66,7 +68,6 @@ public class WordToMwtext {
 		throws IOException, UnsupportedEncodingException 
 	{
 		String textR="";
-		if (picTable.hasPicture(run)) {
 			//
 			// false de dung writeImageContent,
 			// true thi phai dung getContent(pic) va read tung byte
@@ -79,7 +80,6 @@ public class WordToMwtext {
 				pic.writeImageContent(outPic);
 				textR += "[["+MS_IMAGE+":"+namePic+"|"+MS_CENTER+"|150px|"+MS_CAPTION+"]]";
 			}
-		}
 		return textR;
 	}
 	//
@@ -87,33 +87,49 @@ public class WordToMwtext {
 	//
 	protected String charToWiki(CharacterRun run)
 		throws IOException, UnsupportedEncodingException 
-	{
-		String textR = imagesToWiki(run);
-		textR += run.text();
-		String mwOpen = "";
-		String mwClose = "";
-		//
-		// khong xu li dinh dang voi khoang trong, ki tu xuong hang, ket thuc bang
-		// chu y rang trong MS word co nhieu dinh dang gach chan nen dieu kien
-		// "getUnderlineCode()" la lon hon khong.
-		// chung ta dung tag html cho cac dinh dang vi cac phien ban MW 1.14+ co ho tro chung
-		// chung ta cong them open tag vao sau nhung clocse tag phai vao truoc
-		//
-		if (textR.trim().length() > 0){
-			if (run.isBold()) { mwOpen = "<b>"; mwClose = "</b>"; }
-			if (run.isItalic()) { mwOpen = mwOpen + "<i>"; mwClose =  "</i>" + mwClose; } 
-			if (run.getUnderlineCode() > 0) { mwOpen = mwOpen + "<u>"; mwClose = "</u>" + mwClose;}
-			if (run.isStrikeThrough()) { mwOpen = mwOpen + "<s>"; mwClose = "</s>" + mwClose; }
-			if (run.isDoubleStrikeThrough()) { mwOpen = mwOpen + "<s>"; mwClose = "</s>" + mwClose; }//dong ke kep
+	{	
+		String textR;
+		if (picTable.hasPicture(run)) {
+			textR = imagesToWiki(run);
+			numEnter = 1;
+		}
+		else
+		{
+			textR = run.text();
+			String mwOpen = "";
+			String mwClose = "";
 			//
-			// khi character co mot trong cac dinh dang tren thi convert
+			// khong xu li dinh dang voi khoang trong, ki tu xuong hang, ket thuc bang
+			// chu y rang trong MS word co nhieu dinh dang gach chan nen dieu kien
+			// "getUnderlineCode()" la lon hon khong.
+			// chung ta dung tag html cho cac dinh dang vi cac phien ban MW 1.14+ co ho tro chung
+			// chung ta cong them open tag vao sau nhung close tag phai vao truoc
 			//
-			if (mwOpen.length () > 0){
-				textR = addMore(textR,mwClose);
-				textR = mwOpen + textR;
+			if (textR.trim().length() > 0){
+				if (run.isBold()) { mwOpen = "<b>"; mwClose = "</b>"; }
+				if (run.isItalic()) { mwOpen = mwOpen + "<i>"; mwClose =  "</i>" + mwClose; } 
+				if (run.getUnderlineCode() > 0) { mwOpen = mwOpen + "<u>"; mwClose = "</u>" + mwClose;}
+				if (run.isStrikeThrough()) { mwOpen = mwOpen + "<s>"; mwClose = "</s>" + mwClose; }
+				if (run.isDoubleStrikeThrough()) { mwOpen = mwOpen + "<s>"; mwClose = "</s>" + mwClose; }//dong ke kep
+				//
+				// khi character co mot trong cac dinh dang tren thi convert
+				//
+				if (mwOpen.length () > 0){
+					textR = addMore(textR,mwClose);
+					textR = mwOpen + textR;
+				}
 			}
 		}
 		return textR.trim();
+	}
+	//
+	// 
+	//
+	protected String mwLi(int ilfo){
+		String symbol = "";
+		if (ilfo==1) symbol = "#";
+		else if (ilfo > 0) symbol = "*";
+		return symbol;
 	}
 	//
 	// ham convert mot doan van dang .doc sang dang ma mw text
@@ -123,28 +139,30 @@ public class WordToMwtext {
 	protected String paraToWiki(Paragraph para)
 		throws IOException, UnsupportedEncodingException  
 	{
-		Paragraph p = para;
 		String mwText ="";
 		int headerLevel = 0;
 		boolean isTitle = false;
-		
-		StyleDescription paragraphStyle = styleSheet.getStyleDescription (p.getStyleIndex ());
+		boolean isCaption = false;
+		int ilfo = para.getIlfo();//is list info
+		int ilvl = para.getIlvl() + 1;//is list level
+		StyleDescription paragraphStyle = styleSheet.getStyleDescription (para.getStyleIndex ());
 		String styleName = paragraphStyle.getName();
-		if (styleName.startsWith ("Title")) isTitle = true;
 		//
 		// viec can cu vao "Heading", "Title" co the khong chinh xac,
 		// khi nguoi dung tu tao styleName cho Header cua ho
 		// truoc mat, chung ta chap nhan phuong an nay
 		// phuong an toi uu la can cu vao "Level" cua doan van, nhung POI chua ho tro no
 		//
+		if (styleName.startsWith ("Caption")) isCaption = true;
+		if (styleName.startsWith ("Title")) isTitle = true;
 		if (styleName.startsWith ("Heading")) 
-		headerLevel = Integer.parseInt (styleName.substring (8));
+			headerLevel = Integer.parseInt (styleName.substring (8));
 		
-		for (int z = 0; z < p.numCharacterRuns(); z++) {
+		for (int z = 0; z < para.numCharacterRuns(); z++) {
 			//
 			// lay tung dac trung (dinh dang) trong doan van va convert sang ma mw text
 			//
-			CharacterRun run = p.getCharacterRun(z);
+			CharacterRun run = para.getCharacterRun(z);
 			mwText += charToWiki(run);
 		}//end Character Run
 		//
@@ -152,15 +170,39 @@ public class WordToMwtext {
 		// hien nhien, chi convert neu doan van nay co noi dung
 		//
 		if (mwText.length() > 0){
+			if (ilfo > 0){
+				String symbol_info = mwLi(ilfo);
+				int length = mwUlList.length();
+				if (length < ilvl) mwUlList += symbol_info;
+				else
+					if (length > ilvl) mwUlList = mwUlList.substring(0, ilvl-1) + symbol_info;
+					else 
+					if (!mwUlList.endsWith(symbol_info)){
+						if (length > 1) mwUlList = mwUlList.substring(0, length-2) + symbol_info;
+						else mwUlList = symbol_info;
+					}
+				mwText = "\n" + mwUlList + mwText;
+				numEnter = 0;
+			}
+			else mwUlList = "";
+			
+			if (isCaption) {
+				mwText = "<center>"+mwText+"</center>";
+				numEnter = 2;
+			}
 			if (isTitle) {
 				mwText = addMore(mwText,"</title>");
 				mwText = "<title>"+ mwText;
+				numEnter = 2;
 			}
 			if ((headerLevel > 0)&&(headerLevel <= 9)) {
 				mwText = addMore(mwText,SPACE + TAG_HEADER[headerLevel]);
 				mwText = TAG_HEADER[headerLevel] + SPACE + mwText;
+				numEnter = 2;
 			}
 		}
+		else 
+			numEnter = 0;
 		//
 		// thuc te la POI xu li tieng viet khong duoc tot,
 		// co the mot tu tieng viet "bi coi" la nhieu character
@@ -171,9 +213,8 @@ public class WordToMwtext {
 		mwText = mwText.replaceAll("</i><i>","");
 		mwText = mwText.replaceAll("</u><u>","");
 		mwText = mwText.replaceAll("</s><s>","");
-	return mwText;
+		return mwText;
 	}
-
     /** 
     * ham convert mot bang do)n "clone table", tuc la bang khong chua bang con trong no
     * hien tai, ham xu li tot cho kieu bang khong co su tron cac o^/cell cung hang
@@ -195,14 +236,14 @@ public class WordToMwtext {
 		for (int i = 0; i < 100; i++) rowspan[i] = 1;//mac dinh la moi o mot hang/row
 		for (int i = table.numRows()-1; i > -1  ; i--){//duyet cac hang tu duoi len
 			TableRow row = table.getRow(i);
-			String strRow = "|-\n";//bat dau mot hang moi
+			String strRow = "\n|- valign=\"top\"";//bat dau mot hang moi
 			for (int j = 0; j < row.numCells(); j++){
 				TableCell cell = row.getCell(j);
 				int numParas = cell.numParagraphs();
 				String strCells ="";
 				for (int k=0; k < numParas; k ++){
 					Paragraph para = cell.getParagraph(k);
-					strCells += paraToWiki(para) + NEW_LINE;
+					strCells += paraToWiki(para);
 				}
 				if (cell.isVerticallyMerged()){//neu o nay duoc tron
 					if (cell.isFirstVerticallyMerged()){//va la o dau tien
@@ -214,11 +255,12 @@ public class WordToMwtext {
 						rowspan[j] += 1;//tang so rowspan cho cot nay
 				}
 				else
-					strRow += "|" + strCells;
+					strRow += "\n|" + strCells;
 			}//xu li xong mot hang
 			mwText = strRow + mwText;
 		}//xu li xong ca bang
-		mwText = "{|class=\"wikitable\" width=\"100%\"\n" + mwText + "|}";
+		mwText = "{|class=\"wikitable\" width=\"100%\"\n" + mwText + "\n|}";
+		numEnter = 2;
 		return mwText;
 	}
 
@@ -272,8 +314,7 @@ public class WordToMwtext {
                         // ghi noi dung convert vao file, xuong hang moi va danh dau da xu li bang
                         //
                         table = range.getTable(para);
-                        _out.write(tableToWiki(table));
-                        _out.write(NEW_LINE);
+                        _out.write(tableToWiki(table)+Enter[numEnter]);
                         inTable = true; 
                     } 
                 } 
@@ -284,9 +325,9 @@ public class WordToMwtext {
                     // 
                     inTable = false;
                     String mwText = paraToWiki(para);
-                    _out.write(mwText);
-                    if (mwText.length() > 0) _out.write(NEW_LINE);
+                    _out.write(mwText+Enter[numEnter]);
                 }
+                numEnter = 2;//bat dau mot doan van moi
             } 
             // 
             // dong tep, sau khi xu li xong
@@ -303,7 +344,7 @@ public class WordToMwtext {
         	// tao normal folder roi xoa sau khi xu li xong?
         	//
 			File dir = new File(DIR_NAME);
-		    boolean isDirectoryCreated = dir.mkdir();
+			dir.mkdir();
 			OutputStream out = new FileOutputStream(DIR_NAME+"\\mwtext.txt");
 			new WordToMwtext(out);
         } 
