@@ -1,4 +1,4 @@
-package com.thuvienkhoahoc.wordtomwtext;
+package com.thuvienkhoahoc.wordtomwtext.ui;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
@@ -7,7 +7,9 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -18,7 +20,9 @@ import javax.swing.JTable;
 import javax.swing.filechooser.FileFilter;
 
 @SuppressWarnings("serial")
-public class PnlFileChooser extends AbstractFunctionalPanel {
+public class PnlFileChooser extends AbstractFunctionalPanel<Void, List<File>> {
+
+	private List<File> files = new ArrayList<File>();
 
 	public PnlFileChooser() {
 		setLayout(layout);
@@ -89,7 +93,7 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 		int[] selectedRows = tblFiles.getSelectedRows();
 		Arrays.sort(selectedRows); // make sure that it is sorted ascendingly
 		for (int i = selectedRows.length - 1; i >= 0; i--) {
-			Application.getInstance().getFiles().remove(selectedRows[i]);
+			files.remove(selectedRows[i]);
 		}
 		modFiles.fireTableDataChanged();
 	}
@@ -97,22 +101,22 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 	protected void onAddFile() {
 		File[] selectedFiles = realChooser.getSelectedFiles();
 		for (int i = 0; i < selectedFiles.length; i++) {
-			if (!Application.getInstance().getFiles()
-					.contains(selectedFiles[i])) {
-				Application.getInstance().getFiles().add(selectedFiles[i]);
+			if (!files.contains(selectedFiles[i])) {
+				files.add(selectedFiles[i]);
 			}
 		}
 		modFiles.fireTableDataChanged();
 	}
 
 	@Override
-	public void load() {
-		// nothing to do
+	public void load(Void data) {
+		files.clear();
+		modFiles.fireTableDataChanged();
 	}
 
 	@Override
-	public boolean work() {
-		if (Application.getInstance().getFiles().size() <= 0) {
+	public boolean next() {
+		if (files.size() <= 0) {
 			JOptionPane
 					.showMessageDialog(
 							this,
@@ -120,13 +124,14 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 							"Bạn chưa chọn tệp nào", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
-		Application.getInstance().getPages().clear();
-		for (File file : Application.getInstance().getFiles()) {
-			Application.getInstance().getPages().add(converter.convert(file));
-		}
 		return true;
 	}
 
+	@Override
+	public List<File> getResult() {
+		return files;
+	}
+	
 	/*
 	 * Components
 	 */
@@ -136,9 +141,6 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 	private JPanel pnlFiles = new JPanel();
 	private JButton btnAdd = new JButton();
 	private JButton btnRemove = new JButton();
-	private FileTableModel modFiles = new FileTableModel(Application
-			.getInstance().getFiles());
-
-	private Converter converter = new Converter();
+	private FileTableModel modFiles = new FileTableModel(files);
 
 }

@@ -1,4 +1,4 @@
-package com.thuvienkhoahoc.wordtomwtext;
+package com.thuvienkhoahoc.wordtomwtext.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -9,6 +9,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
+import com.thuvienkhoahoc.wordtomwtext.data.Page;
 
 @SuppressWarnings("serial")
 public class PnlPageEditor extends JPanel {

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.thuvienkhoahoc.wordtomwtext;
+package com.thuvienkhoahoc.wordtomwtext.ui;
 
 import java.io.File;
 import java.util.List;
