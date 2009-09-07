@@ -1,14 +1,21 @@
-package com.thuvienkhoahoc.wordtomwtext;
+package com.thuvienkhoahoc.wordtomwtext.ui;
 
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.util.List;
 
 import javax.swing.JTabbedPane;
 
-@SuppressWarnings("serial")
-public class PnlWikiEditor extends AbstractFunctionalPanel {
+import com.thuvienkhoahoc.wordtomwtext.data.Page;
+import com.thuvienkhoahoc.wordtomwtext.data.Project;
 
+@SuppressWarnings("serial")
+public class PnlWikiEditor extends AbstractFunctionalPanel<List<File>, Project> {
+
+	private Project project = new Project();;
+	
 	public PnlWikiEditor() {
 		initComponents();
 	}
@@ -20,10 +27,13 @@ public class PnlWikiEditor extends AbstractFunctionalPanel {
 	}
 
 	@Override
-	public void load() {
+	public void load(List<File> files) {
+		project = new Project();
+		
+		
+		
 		pnlMain.removeAll();
-		for (int i = 0; i < Application.getInstance().getPages().size(); i++) {
-			Page page = Application.getInstance().getPages().get(i);
+		for (Page page : project.getPages()) {
 			addPageTab(page);
 		}
 	}
@@ -39,7 +49,7 @@ public class PnlWikiEditor extends AbstractFunctionalPanel {
 				}
 			}
 		});
-		pnlMain.addTab(page.getTitle(), pageEditor);
+		pnlMain.addTab(page.getLabel(), pageEditor);
 	}
 
 	protected void onDirtyChanged(PnlPageEditor source, boolean dirty) {
@@ -55,18 +65,15 @@ public class PnlWikiEditor extends AbstractFunctionalPanel {
 	}
 
 	@Override
-	public boolean work() {
-		Application.getInstance().getPages().clear();
-		for (int i = 0; i < pnlMain.getTabCount(); i++) {
-			if (!(pnlMain.getTabComponentAt(i) instanceof PnlPageEditor)) {
-				continue;
-			}
-			Application.getInstance().getPages().add(
-					((PnlPageEditor) pnlMain.getTabComponentAt(i)).getPage());
-		}
-		return true;
+	public boolean next() {
+		return false;
 	}
 
+	@Override
+	public Project getResult() {
+		return project;
+	}
+	
 	private JTabbedPane pnlMain = new JTabbedPane();
 
 }

@@ -1,26 +1,29 @@
 package com.thuvienkhoahoc.wordtomwtext;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.swing.SwingUtilities;
 
+import net.sourceforge.jwbf.actions.mw.util.ActionException;
 import net.sourceforge.jwbf.bots.MediaWikiBot;
+
+import com.thuvienkhoahoc.wordtomwtext.ui.DlgLogin;
+import com.thuvienkhoahoc.wordtomwtext.ui.FrmMain;
 
 public class Application {
 
 	private DlgLogin dlgLogin = new DlgLogin(null);
 	private MediaWikiBot bot;
 	private String username;
-	private ArrayList<File> files = new ArrayList<File>();
-	private ArrayList<Page> pages = new ArrayList<Page>();
+	private String sitename;
 
 	private Application() {
 	}
 
 	public String getUsername() {
 		return username;
+	}
+	
+	public String getSitename() {
+		return sitename;
 	}
 	
 	public MediaWikiBot getBot() {
@@ -31,20 +34,20 @@ public class Application {
 		dlgLogin.setVisible(true);
 		username = dlgLogin.getUsername();
 		bot = dlgLogin.getBot();
+		if (bot != null) {
+			try {
+				sitename = bot.getSiteinfo().getSitename();
+			} catch (ActionException e) {
+				sitename = "<không rõ>";
+				e.printStackTrace();
+			}
+		}
 		return bot != null;
 	}
 
 	/*
 	 * Accessors
 	 */
-	
-	public List<File> getFiles() {
-		return files;
-	}
-	
-	public List<Page> getPages() {
-		return pages;
-	}
 	
 	private void run() {
 		SwingUtilities.invokeLater(new Runnable() {

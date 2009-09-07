@@ -1,4 +1,4 @@
-package com.thuvienkhoahoc.wordtomwtext;
+package com.thuvienkhoahoc.wordtomwtext.ui;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -18,6 +18,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import com.thuvienkhoahoc.wordtomwtext.Application;
 
 @SuppressWarnings("serial")
 public class FrmMain extends JFrame {
@@ -43,6 +45,7 @@ public class FrmMain extends JFrame {
 		pnlToolbar.add(Box.createHorizontalGlue());
 		
 		lblUsername.setText(Application.getInstance().getUsername());
+		lblUsername.setToolTipText("tại " + Application.getInstance().getSitename());
 		pnlToolbar.add(lblUsername);
 
 		lblSignIn.setText(" (đăng nhập lại)");
@@ -102,31 +105,31 @@ public class FrmMain extends JFrame {
 			pnlMainWrapper.add(panels[i], titles[i]);
 		}
 
-		setSelectedIndex(0, false);
+		setSelectedIndex(0, false, null);
 	}
 
 	protected void onNext() {
-		if (!tabPanels[selectedIndex].work()) {
+		if (!tabPanels[selectedIndex].next()) {
 			return;
 		}
-		setSelectedIndex(selectedIndex + 1, false);
+		setSelectedIndex(selectedIndex + 1, false, tabPanels[selectedIndex].getResult());
 	}
 
 	protected void onBack() {
-		setSelectedIndex(selectedIndex - 1, true);
+		setSelectedIndex(selectedIndex - 1, true, null);
 	}
 
-	private void setSelectedIndex(int selectedIndex, boolean surpressLoad) {
+	private void setSelectedIndex(int selectedIndex, boolean surpressLoad, Object data) {
 		this.selectedIndex = selectedIndex;
 		if (!surpressLoad) {
-			tabPanels[selectedIndex].load();
+			tabPanels[selectedIndex].load(data);
 		}
 		layoutMainWrapper.show(pnlMainWrapper, tabLabels[selectedIndex]
 				.getText());
 		btnBack.setEnabled(selectedIndex > 0);
 		btnNext.setEnabled(selectedIndex < tabLabels.length - 1);
 		if (selectedIndex == tabLabels.length - 1) {
-			btnNext.setText("Hoàn thành");
+			btnNext.setText("Kết thúc");
 		} else {
 			btnNext.setText("Tiếp tục");
 		}
@@ -138,6 +141,7 @@ public class FrmMain extends JFrame {
 			System.exit(0);
 		}
 		lblUsername.setText(Application.getInstance().getUsername());
+		lblUsername.setToolTipText("tại " + Application.getInstance().getSitename());
 		setVisible(true);
 	}
 

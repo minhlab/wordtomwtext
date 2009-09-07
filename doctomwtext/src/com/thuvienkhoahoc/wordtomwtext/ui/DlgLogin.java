@@ -1,4 +1,4 @@
-package com.thuvienkhoahoc.wordtomwtext;
+package com.thuvienkhoahoc.wordtomwtext.ui;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
