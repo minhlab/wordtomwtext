@@ -36,16 +36,17 @@ public class FrmMain extends JFrame {
 		createTabbedPane(new String[] { "Chọn tài liệu Word",
 				"Chỉnh sửa nội dung", "Tải lên" },
 				new AbstractFunctionalPanel[] { new PnlFileChooser(),
-				new PnlWikiEditor(), new PnlUploader() });
+						new PnlWikiEditor(), new PnlUploader() });
 
 		pnlToolbar.setLayout(new BoxLayout(pnlToolbar, BoxLayout.LINE_AXIS));
 
 		pnlToolbar.add(pnlTabRun);
 
 		pnlToolbar.add(Box.createHorizontalGlue());
-		
+
 		lblUsername.setText(Application.getInstance().getUsername());
-		lblUsername.setToolTipText("tại " + Application.getInstance().getSitename());
+		lblUsername.setToolTipText("tại "
+				+ Application.getInstance().getSitename());
 		pnlToolbar.add(lblUsername);
 
 		lblSignIn.setText(" (đăng nhập lại)");
@@ -54,7 +55,9 @@ public class FrmMain extends JFrame {
 		lblSignIn.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				onRelogin();
+				if (e.getButton() == MouseEvent.BUTTON1) {
+					onRelogin();
+				}
 			}
 		});
 		pnlToolbar.add(lblSignIn);
@@ -112,14 +115,16 @@ public class FrmMain extends JFrame {
 		if (!tabPanels[selectedIndex].next()) {
 			return;
 		}
-		setSelectedIndex(selectedIndex + 1, false, tabPanels[selectedIndex].getResult());
+		setSelectedIndex(selectedIndex + 1, false, tabPanels[selectedIndex]
+				.getResult());
 	}
 
 	protected void onBack() {
 		setSelectedIndex(selectedIndex - 1, true, null);
 	}
 
-	private void setSelectedIndex(int selectedIndex, boolean surpressLoad, Object data) {
+	private void setSelectedIndex(int selectedIndex, boolean surpressLoad,
+			Object data) {
 		this.selectedIndex = selectedIndex;
 		if (!surpressLoad) {
 			tabPanels[selectedIndex].load(data);
@@ -141,7 +146,8 @@ public class FrmMain extends JFrame {
 			System.exit(0);
 		}
 		lblUsername.setText(Application.getInstance().getUsername());
-		lblUsername.setToolTipText("tại " + Application.getInstance().getSitename());
+		lblUsername.setToolTipText("tại "
+				+ Application.getInstance().getSitename());
 		setVisible(true);
 	}
 
