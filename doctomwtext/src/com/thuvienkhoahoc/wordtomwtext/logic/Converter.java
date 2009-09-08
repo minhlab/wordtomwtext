@@ -10,7 +10,7 @@ public class Converter {
 	private static int identity = 0;
 	
 	public Project convert(File wordFile) {
-		Page page = new Page();
+		Page page = new Page(null);
 		page.setLabel("test" + (++identity));
 		page.setText("test");
 		
