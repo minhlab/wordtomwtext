@@ -42,7 +42,7 @@ public class WordToMwtext {
         /*
          * Tên tệp MS Word đầu vào, với phiên bản full biến này sẽ nhận từ giao diện người dùng
          */
-        String nameInput = "tablecell";
+        String nameInput = "tablerow";
         /*
          * Dùng một chuỗi kí tự để tạo mã list {#, *} cho kiểu danh sách
          */
@@ -370,97 +370,62 @@ public class WordToMwtext {
      * Tuy nhiên, "ý tưởng thông minh" dưới đây sẽ cho ta kết quả mong muốn.
      *          Số colspan được tính bởi công thức: colspan = (width/maxWidTable)*maxColTable
      *          Số rowpan được tính bằng cách đếm số ô được trộn theo chiều dọc từ dưới lên
-         * Trong đó:    maxColTable là số ô tối đa theo hàng ngang
-         *                              maxWidTable là chiều rộng của hàng có số cột tối đa.
-         *                              width là chiều rộng của ô cần tính colspan
-         * 
-         * Thuật toán:
-         * Duyệt các hàng theo thứ tự từ dưới lên
-     * Với mỗi hàng, chúng ta "giả vờ" số ô của mỗi hàng đều bằng maxColTable. Như vậy, sẽ có
-     * những ô "thực" và những ô "ảo". Với những ô "thực" ta tính số colspan và rowspan cho nó. 
-     * Ta dùng một mảng nguyên rowspan[] để đếm số ô được trộn theo chiều dọc.
+     * Trong đó:    maxColTable là số ô tối đa theo hàng ngang
+     *                              maxWidTable là chiều rộng của hàng có số cột tối đa.
+     *                              width là chiều rộng của ô cần tính colspan
+     * 
      */ 
         protected String tableToWiki(Table tab)
-                throws IOException, UnsupportedEncodingException  
-        {
-                Table table = tab;
-                maxColWidth(tab);
-                String mwText = "";
-                /*
-                 * Chúng ta dùng một mảng số nguyên để đếm "số ô liên tiếp được trộn" trong cùng một cột
-                 * rowspan[j] là "số ô liên tiếp được trộn" của cột j, giá trị mặc định là 1.
-                 */
-                int rowspan[] = new int[maxColTable];
-                for (int i = 0; i < maxColTable; i++) rowspan[i] = 1;//mặc định, mỗi ô một hàng
-                /*
-                 * Chúng ta sẽ duyệt các hàng theo thứ tự từ dưới lên
-                 *  Với mỗi hàng, ta sẽ duyệt maxColTable cell của nó, 
-                 *    nếu phát hiện cell thứ j của hàng i được trộn thì rowspan[j] sẽ tăng lên 1
-                 *    nếu phát hiện cell thứ j là ô đầu tiên được trộn từ trên xuống thì
-                 *    sinh mã rowspan cho ô này và gán lại giá trị mặc định cho rowspan[j] của cột j
-                 */
-                for (int i = table.numRows()-1; i > -1  ; i--){//duyệt các hàng theo thứ tự từ dưới lên
-                        TableRow row = table.getRow(i);
-                        String strRow = "\n|- valign=\"top\"";//bắt đầu một hàng mới
-                        int numCell = row.numCells();//số ô "thực"
-                        int cellAdded = 0;//tổng số cell đã duyệt, bao gồm cả cell ảo
-                        for (int j = 0; j < maxColTable; j++){//"giả vờ" rằng, tất cả các hàng đều có maxColTable ô
-                                String optionSpan = "";
-                                int colspan = 1;//mặc định mỗi cell một cột
-                                if (j < numCell){//với mỗi ô thực
-                                TableCell cell = row.getCell(j);
-                                /*
-                                 * Tính colspan cho mỗi ô, nếu hàng này có ô ảo
-                                 */
-                                if (numCell < maxColTable){
-                                	colspan = sugColSpan(cell.getWidth());
-                                    if (colspan > 1) optionSpan += "colspan=\""+colspan+"\" ";
-                                }
-                                /*
-                                 * Convert các đoạn văn trong ô này và sinh mã xuống hàng tương ứng
-                                 */
-                                int numP = cell.numParagraphs();
-                                String strCells ="";
-                                for (int k=0; k < numP; k ++){
-                                        Paragraph para = cell.getParagraph(k);
-                                        strCells += paraToWiki(para);
-                                        if (k < numP-1) strCells += Enter[numEnter];
-                                        numEnter = 2;//gán lại giá trị xuống hàng mặc định
-                                }
-                                /*
-                                 * Sinh mã rowspan nếu là ô đầu tiên được trộn và gán lại giá trị mặc định
-                                 * cho rowspan[j]. Nếu không phải là ô đầu tiên được trộn thì tăng rowspan[j]
-                                 */
-                                if (cell.isVerticallyMerged()){
-                                        if (cell.isFirstVerticallyMerged()){
-                                                optionSpan += "rowspan=\""+rowspan[j]+"\"|";
-                                                strRow += "\n|" + optionSpan + "\n" + strCells;
-                                                rowspan[j] = 1;
-                                        }
-                                        else
-                                                rowspan[cellAdded] += 1;//bí mật ở đây
+        throws IOException, UnsupportedEncodingException {
+        Table table = tab;
+        maxColWidth(tab);
+        String mwText = "";
+        int rowspan[] = new int[maxColTable];
+        for (int i = 0; i < maxColTable; i++) rowspan[i] = 1;
+        for (int i = table.numRows()-1; i > -1  ; i--){
+                TableRow row = table.getRow(i);
+                String strRow = "\n|- valign=\"top\"";
+                int numCell = row.numCells();
+        		int cellAdded = 0;
+                for (int j = 0; j < numCell; j++){
+                        String optionSpan = "";
+                        int colspan = 1;
+                        TableCell cell = row.getCell(j);
+                        if (numCell < maxColTable){
+                        	colspan = sugColSpan(cell.getWidth());
+                        	if (colspan > 1)
+                            	optionSpan += "colspan=\""+colspan+"\" ";
+                        }
+                        int numP = cell.numParagraphs();
+                        String strCells ="";
+                        for (int k=0; k < numP; k ++){
+                                Paragraph para = cell.getParagraph(k);
+                                strCells += paraToWiki(para);
+                                if (k < numP-1) strCells += Enter[numEnter];
+                                numEnter = 2;
+                        }
+                        if (cell.isVerticallyMerged()){
+                                if (cell.isFirstVerticallyMerged()){
+                                        optionSpan += "rowspan=\""+rowspan[cellAdded]+"\"|";
+                                        strRow += "\n|" + optionSpan + "\n" + strCells;
+                                        for (int k=cellAdded;k < cellAdded+colspan;k++) rowspan[k] = 1;
                                 }
                                 else
-                                        /*
-                                         * Nếu ô này không được trộn thì cập nhật nó vào hàng
-                                         */
-                                        if (optionSpan.trim().length()==0) strRow += "\n|\n" + strCells;
-                                        else
-                                                strRow += "\n|" + optionSpan + "|\n" + strCells;
-                                }
-                                /*
-                                 * Nếu là ô ảo và không nằm ở hàng cuối cùng của bảng thì tăng rowspan[j]
-                                 */
+                                        for (int k=cellAdded;k < cellAdded+colspan;k++) rowspan[k] += 1;
+                        }
+                        else
+                                if (optionSpan.trim().length()==0) strRow += "\n|\n" + strCells;
                                 else
-                                        if (i < table.numRows()-1) rowspan[j] += 1;
-                                cellAdded += colspan;
-                        }//xử lí xong một hàng
-                        mwText = strRow + mwText;
-                }//xử lí xong cả bảng
-                mwText = "{|class=\"wikitable\" width=\"100%\"" + mwText + "\n|}"+Enter[2];
-                numEnter = 2;
-                return mwText;
+                                        strRow += "\n|" + optionSpan.trim() + "|\n" + strCells;
+                        cellAdded += colspan;
+                }
+                mwText = strRow + mwText;
         }
+        mwText = "{|class=\"wikitable\" width=\"100%\"" + mwText + "\n|}"+Enter[2];
+        numEnter = 2;
+        return mwText;
+        }
+
 
     /*
      * Thiết lập các thông số đầu vào, đầu ra
