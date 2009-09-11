@@ -42,7 +42,7 @@ public class WordToMwtext {
         /*
          * Tên tệp MS Word đầu vào, với phiên bản full biến này sẽ nhận từ giao diện người dùng
          */
-        String nameInput = "tablerow";
+        String nameInput = "tablecell";
         /*
          * Dùng một chuỗi kí tự để tạo mã list {#, *} cho kiểu danh sách
          */
@@ -403,16 +403,19 @@ public class WordToMwtext {
                         TableRow row = table.getRow(i);
                         String strRow = "\n|- valign=\"top\"";//bắt đầu một hàng mới
                         int numCell = row.numCells();//số ô "thực"
+                        int cellAdded = 0;//tổng số cell đã duyệt, bao gồm cả cell ảo
                         for (int j = 0; j < maxColTable; j++){//"giả vờ" rằng, tất cả các hàng đều có maxColTable ô
                                 String optionSpan = "";
+                                int colspan = 1;//mặc định mỗi cell một cột
                                 if (j < numCell){//với mỗi ô thực
                                 TableCell cell = row.getCell(j);
                                 /*
                                  * Tính colspan cho mỗi ô, nếu hàng này có ô ảo
                                  */
-                                if (numCell < maxColTable)
-                                                if (sugColSpan(cell.getWidth()) > 1)
-                                                        optionSpan += "colspan=\""+sugColSpan(cell.getWidth())+"\" ";
+                                if (numCell < maxColTable){
+                                	colspan = sugColSpan(cell.getWidth());
+                                    if (colspan > 1) optionSpan += "colspan=\""+colspan+"\" ";
+                                }
                                 /*
                                  * Convert các đoạn văn trong ô này và sinh mã xuống hàng tương ứng
                                  */
@@ -435,7 +438,7 @@ public class WordToMwtext {
                                                 rowspan[j] = 1;
                                         }
                                         else
-                                                rowspan[j] += 1;
+                                                rowspan[cellAdded] += 1;//bí mật ở đây
                                 }
                                 else
                                         /*
@@ -450,6 +453,7 @@ public class WordToMwtext {
                                  */
                                 else
                                         if (i < table.numRows()-1) rowspan[j] += 1;
+                                cellAdded += colspan;
                         }//xử lí xong một hàng
                         mwText = strRow + mwText;
                 }//xử lí xong cả bảng
@@ -463,14 +467,14 @@ public class WordToMwtext {
      */ 
         public WordToMwtext(OutputStream stream)
         throws IOException, UnsupportedEncodingException  {
-                OutputStreamWriter out = new OutputStreamWriter (stream, "UTF-8");
-                _out = out;
+        OutputStreamWriter out = new OutputStreamWriter (stream, "UTF-8");
+        _out = out;
         Range range = null; 
         Table table = null; 
         Paragraph para = null; 
         boolean inTable = false; 
         int numParas = 0; 
-                doc = new HWPFDocument(new FileInputStream(nameInput+".doc"));
+        doc = new HWPFDocument(new FileInputStream(nameInput+".doc"));
         range = doc.getRange(); 
         styleSheet = doc.getStyleSheet();
         picTable = doc.getPicturesTable();
@@ -487,11 +491,11 @@ public class WordToMwtext {
                 if(para.isInTable()) { 
                     /*
                      * Vì phương thức getTable() chỉ được gọi MỘT LẦN DUY NHẤT cho mỗi bảng
-                     * nên chúng ta cần đánh dáu bảng này đã được xử lí chưa
+                     * nên chúng ta cần đánh dấu bảng này đã được xử lí chưa
                      */ 
                     if(!inTable) { 
                         /*
-                         * Convert bảng, ghi vào file cùng với xuống hàng
+                         * Convert bảng, ghi vào file
                          */ 
                         table = range.getTable(para);
                         _out.write(tableToWiki(table));
