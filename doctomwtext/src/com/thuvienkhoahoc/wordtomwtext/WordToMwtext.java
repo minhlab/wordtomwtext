@@ -13,6 +13,8 @@ import org.apache.poi.hwpf.model.StyleDescription;
 import org.apache.poi.hwpf.model.PicturesTable;
 
 import java.io.*; //tạm thời nhập tất cả các gói, sau này sẽ rút gọn
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** 
  * TEST CODE ONLY. 
@@ -31,7 +33,7 @@ public class WordToMwtext {
         public static final String MS_CAPTION = "Hình minh họa";
         public static final String SPACE = " ";
         public static final String DIR_NAME = "thuvienkhoahoc.com";
-        public static final String TAG_HEADER[] = {"","=","==","===","====","=====","======","=======","========"};
+        public static final String TAG_HEADER[] = {"","=","==","===","====","=====","======","=======","========","========="};
         /*
          *  Các biến toàn cục trong lớp
          */
@@ -41,8 +43,10 @@ public class WordToMwtext {
         PicturesTable picTable;
         /*
          * Tên tệp MS Word đầu vào, với phiên bản full biến này sẽ nhận từ giao diện người dùng
+         * Chỉ viết phần main name, còn extension name thì đã cộng ở dưới
+         * Chúng ta làm vậy, vì biến này còn dùng để đặt tên cho file ảnh nếu có
          */
-        String nameInput = "tablerow";
+        String nameInput = "A 9584   Huong dan nam hoc 2007-2008 7 9 2007";
         /*
          * Dùng một chuỗi kí tự để tạo mã list {#, *} cho kiểu danh sách
          */
@@ -63,6 +67,84 @@ public class WordToMwtext {
          */
         int maxColTable;
         int maxWidTable;
+        /*
+         * Các kí tự điều khiển, chúng dùng để nhận dạng các phần tử đặc biệt trong word
+         * chẳng hạn như: HYPERLINK, EQUATION, PICTURE, etc
+         */
+       	String u13 = String.valueOf('\u0013');//bắt đầu một phần tử
+       	String u01 = String.valueOf('\u0001');//phân cách trong hyperlink
+       	String u07 = String.valueOf('\u0007');//kết thúc một hàng trong bảng
+       	String u0C = String.valueOf('\u000C');//chưa biết kí tự này có chức năng gì?
+       	String u14 = String.valueOf('\u0014');//dính liền đằng sau u01
+       	String u15 = String.valueOf('\u0015');//kết thúc một phần tử
+       	String u22 = String.valueOf('\u0022');//kí tự nháy kép (")
+       	/*
+       	 * Các hàm nhận dạng bắt đầu và kết thúc một phần tử đặc biệt
+       	 */
+        protected boolean startObject(String text){
+        	   return (text.indexOf(u13) > -1);
+        }
+        
+        protected boolean endObject(String text){
+        	   return (text.indexOf(u15) > -1);
+        }
+        /*
+         * Hàm convert hyperlink sang wiki link, trong word có 4 dạng hyperlink chủ yếu:
+         * 	1) Bookmark
+         * 		liên kết tới một đoạn text đã được bookmark hoặc tới một header trong cùng
+         * 		1 file
+         * 	2) Website hoặc email
+         * 		liên kết tới một trang mạng qua url của nó hoặc email
+         * 	3) Folder
+         * 		liên kết tới một thư mục
+         * 	4) File
+         * 		liên kết đến một tệp tin
+         * Các biểu thức chính quy dưới đây khá phức tạp, đừng sửa đổi chúng nếu bạn không
+         * hiểu gì về nó.
+         */
+        protected String linkToWiki(String text){
+     	String mwText ="";
+        Pattern pattern;
+        Matcher matcher;
+     	// HYPERLINK  \l "book mark name" real name 
+     	String interLink = "("+u13+" HYPERLINK  )(.*) ("+u22+")(.*)("+u22+" "+u01+u14+")(.*)"+"("+u15+")";
+     	// HYPERLINK "url website" real name
+     	String extraLink = "("+u13+" HYPERLINK "+u22+")(.*)("+u22+" "+u01+u14+")(.*)"+"("+u15+")";
+     	// HYPERLINK "folder name" real name
+     	String folderLink = "("+u13+" HYPERLINK "+u22+")(.*)("+u22+" "+u01+u14+")(.*)"+"("+u15+")";
+     	//HYPERLINK "file name.ext"real name
+     	String fileLink = "("+u13+"HYPERLINK "+u22+")(.*)("+u22+u01+u14+")(.*)"+"("+u15+")";
+     		//liên kết đến bookmark hoặc header
+        if (text.indexOf(" HYPERLINK  ") >-1 ){
+     	    pattern = Pattern.compile(interLink);
+     	    matcher = pattern.matcher(text);
+     	    mwText = matcher.replaceAll("[[#$4|$6]]");
+     	    mwText = mwText.replaceAll("#_","#");
+     	}
+     	else 
+     		//liên kết đến website hoặc email
+     	if ((text.indexOf("http:") >-1)||(text.indexOf("mailto:") >-1)) {
+     	   	pattern = Pattern.compile(extraLink);
+     	    matcher = pattern.matcher(text);
+     		mwText = matcher.replaceAll("[$2 $4]");
+     	}
+     	else
+     		//liên kết đến thư mục
+     	if (text.indexOf(" HYPERLINK") > -1){
+     	   	pattern = Pattern.compile(folderLink);
+     	    matcher = pattern.matcher(text);
+     		mwText = matcher.replaceAll("[[$2|$4]]");
+     	}
+     	else
+     		//liên kết đến tệp tin
+     	{
+     	   	pattern = Pattern.compile(fileLink);
+     	    matcher = pattern.matcher(text);
+     		mwText = matcher.replaceAll("[[$2|$4]]");
+     	}
+         return mwText;
+        }
+
         /*
          * Lấy màu của font chữ 
          */
@@ -111,15 +193,15 @@ public class WordToMwtext {
          * Thiết lập các tùy chọn cho font
          */
        protected String getOptionFont(CharacterRun run){
-    	   String optionFont=""; 
-    	   String font = run.getFontName();
-    	   if (!font.equals("Times New Roman")) optionFont = optionFont + " face=\""+font+"\"";
-    	   int size = getHtmlFontSize(run.getFontSize());
-    	   if (size != 3) optionFont = optionFont + " size="+size;
-    	   int color = run.getIco24();
-    	   String strColor=getColor(color);
-    	   if (strColor.length() >0 ) optionFont = optionFont + " color=\""+strColor+"\"";
-    	   return optionFont;
+           String optionFont=""; 
+           String font = run.getFontName();
+           if (!font.equals("Times New Roman")) optionFont = optionFont + " face=\""+font+"\"";
+           int size = getHtmlFontSize(run.getFontSize());
+           if (size != 3) optionFont = optionFont + " size="+size;
+           int color = run.getIco24();
+           String strColor=getColor(color);
+           if (strColor.length() >0 ) optionFont = optionFont + " color=\""+strColor+"\"";
+           return optionFont;
        }
       /*
        *  Chuyển đổi size font MS Word sang size font html, có tính chất tương đối
@@ -138,13 +220,13 @@ public class WordToMwtext {
        *      36      72          7
        */ 
         protected int getHtmlFontSize(int size){
-        	if      (size < 10) return 1; 
-        	else if (size < 24) return 2; 
-        	else if (size < 28) return 3; 
-        	else if (size < 36) return 4; 
-        	else if (size < 48) return 5; 
-        	else if (size < 64) return 6;
-        	return 7;
+                if      (size < 10) return 1; 
+                else if (size < 24) return 2; 
+                else if (size < 28) return 3; 
+                else if (size < 36) return 4; 
+                else if (size < 48) return 5; 
+                else if (size < 64) return 6;
+                return 7;
         }  
         /*
          * Thêm tag wikitext vào cuối đoạn text của CharacterRun
@@ -153,8 +235,8 @@ public class WordToMwtext {
         protected String addMore(String str, String more) {
                 String reStr = str;
                 int length = reStr.length();
-                if (reStr.endsWith("\r")) reStr = reStr.substring(0, length-1).trim()+ SPACE + more+"\r";
-                else reStr = reStr.trim() + SPACE + more;
+                if (reStr.endsWith("\r")) reStr = reStr.substring(0, length-1) + more+"\r";
+                else reStr = reStr + more;
                 return reStr;
         }
         /*
@@ -165,15 +247,15 @@ public class WordToMwtext {
         protected String imagesToWiki(CharacterRun run)
                 throws IOException, UnsupportedEncodingException 
         {
-        	String textR="";
-        	Picture pic = picTable.extractPicture(run,false);
-        	if (pic.suggestFileExtension().length() > 0){
-        		String namePic = nameInput+"-"+pic.suggestFullFileName();
-        		OutputStream outPic = new FileOutputStream(DIR_NAME+"\\"+namePic);
-        		pic.writeImageContent(outPic);
-        		textR += "[["+MS_IMAGE+":"+namePic+"|"+MS_CENTER+"|150px|"+MS_CAPTION+"]]";
-        	}
-        	return textR;
+                String textR="";
+                Picture pic = picTable.extractPicture(run,false);
+                if (pic.suggestFileExtension().length() > 0){
+                        String namePic = nameInput+"-"+pic.suggestFullFileName();
+                        OutputStream outPic = new FileOutputStream(DIR_NAME+"\\"+namePic);
+                        pic.writeImageContent(outPic);
+                        textR += "[["+MS_IMAGE+":"+namePic+"|"+MS_CENTER+"|150px|"+MS_CAPTION+"]]";
+                }
+                return textR;
         }
         /*
          * Convert một đối tượng CharacterRun thành wikitext
@@ -181,57 +263,52 @@ public class WordToMwtext {
         protected String charToWiki(CharacterRun run)
                 throws IOException, UnsupportedEncodingException 
         {       
-    		String textR;
-    		if (picTable.hasPicture(run)) {
-    			textR = imagesToWiki(run);
-    			numEnter = 1;
-    		}
-    		else
-    		{
-            	short ssIndex = run.getSubSuperScriptIndex();
-        		boolean isDeleted = run.isMarkedDeleted() || run.isFldVanished() || run.isStrikeThrough() || run.isDoubleStrikeThrough();        			/*
-    			/*
-    			 * Điều khó hiểu là, giá trị text của CharacterRun đôi khi lại không trùng
-    			 * với text của Paragraph. Do đó có thể chúng ta cần phải encode text của Paragraph
-    			 * trước khi convert CharacterRun
-    			 */
-    			textR = run.text();
-    			String mwOpen = "";
-    			String mwClose = "";
-    			String optionFont = getOptionFont(run);
-    			if (optionFont.length()>0) {
-    				mwOpen = "<font"+optionFont+">";
-    				mwClose = "</font>";
-    			}
-    			/*
-    			 * Không xử lí định dạng với khoảng trống, kí tự xuống hàng, kết thúc bảng
-    			 * Chú ý rằng trong MS Word có nhiều định dạng gạch chân nhưng Mediawiki chỉ có một.
-    			 * Chúng ta dùng các tag HTML cho các định dạng vì các phiên bản MW 1.14+ co ho tro chung
-    			 * Việc cộng các tag phải theo kiểu "Last in first out", tag nào được mở trước thì sẽ đóng sau.
-    			 * Ví dụ để tạo ra mã wikitext dạng: <b><i><u>ABCD></u></i></b>, thì thuật toán:
-    			 * mwOpen=								mwClose=
-    			 * <b>										</b>
-    			 * <b><i>								</i></b>
-    			 * <b><i><u>						</u></i></b>
-    			 */
-    			if (textR.trim().length() > 0){
-	    			if (run.isBold()) {					mwOpen  = mwOpen +  "<b>"; 		mwClose = "</b>" 	+ mwClose; }
-	    			if (run.isItalic()) {				mwOpen  = mwOpen +  "<i>"; 		mwClose = "</i>" 	+ mwClose; }
-	    			if (run.getUnderlineCode() > 0) {	mwOpen  = mwOpen +  "<u>"; 		mwClose = "</u>" 	+ mwClose; }
-	    			if (isDeleted) {					mwOpen  = mwOpen +  "<del>"; 	mwClose = "</del>" 	+ mwClose; }
-	    			if (ssIndex == 1) {					mwOpen  = mwOpen +  "<sup>"; 	mwClose = "</sup>" 	+ mwClose; }
-	    			if (ssIndex == 2) {					mwOpen  = mwOpen +  "<sub>"; 	mwClose = "</sub>" 	+ mwClose; }
-	    			if (run.isHighlighted()) {			mwOpen  = mwOpen +  "<em>"; 	mwClose = "</em>" 	+ mwClose; }
-	    			/*
-	    			 * Khi CharacterRun có 1 trong các định dạng trên thì sẽ convert
-	    			 */
-	    			if (mwOpen.length () > 0){
-	    				textR = addMore(textR,mwClose);
-	    				textR = mwOpen + textR;
-	    			}
-    			}
-    		}
-    		return textR.trim();
+                String textR;
+                short ssIndex = run.getSubSuperScriptIndex();
+                boolean isDeleted = run.isMarkedDeleted() || run.isFldVanished() || run.isStrikeThrough() || run.isDoubleStrikeThrough();                               /*
+                        /*
+                         * Điều khó hiểu là, giá trị text của CharacterRun đôi khi lại không trùng
+                         * với text của Paragraph. Do đó có thể chúng ta cần phải encode text của Paragraph
+                         * trước khi convert CharacterRun
+                         */
+                        textR = run.text();
+                        String mwOpen = "";
+                        String mwClose = "";
+                        String optionFont = getOptionFont(run);
+                        if (optionFont.length()>0) {
+                                mwOpen = "<font"+optionFont+">";
+                                mwClose = "</font>";
+                        }
+                        /*
+                         * Không xử lí định dạng với khoảng trống, kí tự đặc biệt
+                         * Chú ý rằng trong MS Word có nhiều định dạng gạch chân nhưng Mediawiki chỉ có một.
+                         * Chúng ta dùng các tag HTML cho các định dạng vì các phiên bản MW 1.14+ co ho tro chung
+                         * Việc cộng các tag phải theo kiểu "Last in first out", tag nào được mở trước thì sẽ đóng sau.
+                         * Ví dụ để tạo ra mã wikitext dạng: <b><i><u>ABCD></u></i></b>, thì thuật toán:
+                         * mwOpen=                                                mwClose=
+                         * <b>                                                         </b>
+                         * <b><i>                                                  </i></b>
+                         * <b><i><u>                                            </u></i></b>
+                         */
+                        textR = textR.replace(u07,"");
+                        textR = textR.replace(u0C,"");
+                        if (textR.trim().length() > 0){
+                                if (run.isBold()) {              mwOpen  = mwOpen +  "<b>";      mwClose = "</b>"   + mwClose; }
+                                if (run.isItalic()) {            mwOpen  = mwOpen +  "<i>";      mwClose = "</i>"   + mwClose; }
+                                if (run.getUnderlineCode() > 0) {mwOpen  = mwOpen +  "<u>";      mwClose = "</u>"   + mwClose; }
+                                if (isDeleted) {                 mwOpen  = mwOpen +  "<del>";    mwClose = "</del>" + mwClose; }
+                                if (ssIndex == 1) {              mwOpen  = mwOpen +  "<sup>";    mwClose = "</sup>" + mwClose; }
+                                if (ssIndex == 2) {              mwOpen  = mwOpen +  "<sub>";    mwClose = "</sub>" + mwClose; }
+                                if (run.isHighlighted()) {       mwOpen  = mwOpen +  "<em>";     mwClose = "</em>"  + mwClose; }
+                                /*
+                                 * Khi CharacterRun có 1 trong các định dạng trên thì sẽ convert
+                                 */
+                                if (mwOpen.length () > 0){
+                                        textR = addMore(textR,mwClose);
+                                        textR = mwOpen + textR;
+                                }
+                        }
+                   return textR;
         }
         /*
          * Hàm trả về mã tag wikitext cho danh sách list (ul) là ol (*) hay li (#)
@@ -240,11 +317,11 @@ public class WordToMwtext {
          * Bullet hay Numbering
          */
         protected String mwLi(int ilfo){
-        	String symbol = "";
-        	if (ilfo==1) symbol = "#";
-        	else
-        		if (ilfo > 0) symbol = "*";
-        	return symbol;
+                String symbol = "";
+                if (ilfo==1) symbol = "#";
+                else
+                    if (ilfo > 0) symbol = "*";
+                return symbol;
         }
         /*
          * Convert một đoạn văn (Paragraph) thành wikitext
@@ -257,35 +334,48 @@ public class WordToMwtext {
         {
                 String mwText ="";
                 int headerLevel = 0;
-                boolean isTitle = false;
                 boolean isCaption = false;
                 int ilfo = para.getIlfo();//kiểu list nào {Bullet, Numbering}
                 int ilvl = para.getIlvl() + 1;//cấp độ, hay mức lùi vào đầu dòng
                 StyleDescription paragraphStyle = styleSheet.getStyleDescription (para.getStyleIndex ());
                 String styleName = paragraphStyle.getName();
                 /*
-                 * Nhận dạng kiểu Paragraph = {Heading, Title, Caption,...}
+                 * Nhận dạng kiểu Paragraph = {Heading, Caption,...}
                  * Việc căn cứ vào getName() có thể không chính xác vì người dùng có thể tự tạo Heading
                  * và Title cá nhân. Nhưng chúng ta chấp nhận phương án này, vì hiện tại POI chưa hỗ trợ
                  * "Level" của đoạn văn
                  */
                 if (styleName.startsWith ("Caption")) isCaption = true;
-                if (styleName.startsWith ("Title")) isTitle = true;
                 if (styleName.startsWith ("Heading")) 
                         headerLevel = Integer.parseInt (styleName.substring (8));
                 /*
                  * Convert các CharacterRun của đoạn văn
                  */
+                String strObject="";
+                boolean object = false;
                 for (int z = 0; z < para.numCharacterRuns(); z++) {
-                        CharacterRun run = para.getCharacterRun(z);
-                        mwText += charToWiki(run);
+                	CharacterRun run = para.getCharacterRun(z);
+            		if (picTable.hasPicture(run)) mwText += imagesToWiki(run);
+            		else
+            		if (startObject(run.text())) {object = true; strObject = run.text();}
+            		else
+            		if (object){
+            			strObject = strObject + run.text();
+            			if (endObject(run.text())) {
+            				if (strObject.indexOf("HYPERLINK") > -1) mwText += linkToWiki(strObject);
+            				object = false;
+            				strObject = "";
+            			}
+            		}
+            		else mwText += charToWiki(run);
                 }
                 /*
                  * Bổ sung định dạng cho các loại paragraph
                  * Hiển nhiên, chúng ta chỉ làm việc này nếu đoạn văn có nội dung
                  */
                 if (mwText.length() > 0){
-                        /*
+                    numEnter = 2;
+                    	/*
                          * Kiểm tra xem đoạn có phải là danh sách hay không
                          */
                         if (ilfo > 0){
@@ -299,25 +389,16 @@ public class WordToMwtext {
                                                 if (length > 1) mwUlList = mwUlList.substring(0, length-2) + symbol_info;
                                                 else mwUlList = symbol_info;
                                         }
-                                mwText = "\n" + mwUlList + mwText;
-                                numEnter = 0;
+                                mwText = mwUlList + mwText;
+                                numEnter = 1;
                         }
                         else 
                                 mwUlList = "";
                         
-                        if (isCaption) {
-                                mwText = "<center>"+mwText+"</center>";
-                                numEnter = 2;
-                        }
-                        if (isTitle) {
-                                mwText = addMore(mwText,"</title>");
-                                mwText = "<title>"+ mwText;
-                                numEnter = 2;
-                        }
+                        if (isCaption) mwText = "<center>"+mwText+"</center>";
                         if ((headerLevel > 0)&&(headerLevel <= 9)) {
                                 mwText = addMore(mwText,SPACE + TAG_HEADER[headerLevel]);
                                 mwText = TAG_HEADER[headerLevel] + SPACE + mwText;
-                                numEnter = 2;
                         }
                 }
                 else 
@@ -371,8 +452,8 @@ public class WordToMwtext {
      *          Số colspan được tính bởi công thức: colspan = (width/maxWidTable)*maxColTable
      *          Số rowpan được tính bằng cách đếm số ô được trộn theo chiều dọc từ dưới lên
      * Trong đó:    maxColTable là số ô tối đa theo hàng ngang
-     *                              maxWidTable là chiều rộng của hàng có số cột tối đa.
-     *                              width là chiều rộng của ô cần tính colspan
+     *              maxWidTable là chiều rộng của hàng có số cột tối đa.
+     *              width là chiều rộng của ô cần tính colspan
      * 
      */ 
         protected String tableToWiki(Table tab)
@@ -386,15 +467,15 @@ public class WordToMwtext {
                 TableRow row = table.getRow(i);
                 String strRow = "\n|- valign=\"top\"";
                 int numCell = row.numCells();
-        		int cellAdded = 0;
+                        int cellAdded = 0;
                 for (int j = 0; j < numCell; j++){
                         String optionSpan = "";
                         int colspan = 1;
                         TableCell cell = row.getCell(j);
                         if (numCell < maxColTable){
-                        	colspan = sugColSpan(cell.getWidth());
-                        	if (colspan > 1)
-                            	optionSpan += "colspan=\""+colspan+"\" ";
+                                colspan = sugColSpan(cell.getWidth());
+                                if (colspan > 1)
+                                optionSpan += "colspan=\""+colspan+"\" ";
                         }
                         int numP = cell.numParagraphs();
                         String strCells ="";
@@ -421,12 +502,10 @@ public class WordToMwtext {
                 }
                 mwText = strRow + mwText;
         }
-        mwText = "{|class=\"wikitable\" width=\"100%\"" + mwText + "\n|}"+Enter[2];
+        mwText = "{|class=\"wikitable\" width=\"100%\"" + mwText + "\n|}";
         numEnter = 2;
         return mwText;
         }
-
-
     /*
      * Thiết lập các thông số đầu vào, đầu ra
      */ 
@@ -500,4 +579,4 @@ public class WordToMwtext {
                         t.printStackTrace();
                 }
     } 
-} 
+}
