@@ -68,6 +68,11 @@ public class WordToMwtext {
         int maxColTable;
         int maxWidTable;
         /*
+         * Biến tạo tag html
+         */
+    	String tagOpen;
+    	String tagClose;
+        /*
          * Các kí tự điều khiển, chúng dùng để nhận dạng các phần tử đặc biệt trong word
          * chẳng hạn như: HYPERLINK, EQUATION, PICTURE, etc
          */
@@ -189,20 +194,6 @@ public class WordToMwtext {
             }
           return "";
        }
-        /*
-         * Thiết lập các tùy chọn cho font
-         */
-       protected String getOptionFont(CharacterRun run){
-           String optionFont=""; 
-           String font = run.getFontName();
-           if (!font.equals("Times New Roman")) optionFont = optionFont + " face=\""+font+"\"";
-           int size = getHtmlFontSize(run.getFontSize());
-           if (size != 3) optionFont = optionFont + " size="+size;
-           int color = run.getIco24();
-           String strColor=getColor(color);
-           if (strColor.length() >0 ) optionFont = optionFont + " color=\""+strColor+"\"";
-           return optionFont;
-       }
       /*
        *  Chuyển đổi size font MS Word sang size font html, có tính chất tương đối
        *   pt size, 2*pt size html size 
@@ -258,57 +249,45 @@ public class WordToMwtext {
                 return textR;
         }
         /*
-         * Convert một đối tượng CharacterRun thành wikitext
+         * Thiết lập các tùy chọn cho font
+         */ 
+        protected String getOptionFont(CharacterRun run) {
+       	   	String optionFont="";
+    		boolean hasContent = run.text().trim().length()>0;
+    		if (hasContent){
+    	        String font = run.getFontName();
+    	        if (!font.equals("Times New Roman")) optionFont = " face=\""+font+"\"";
+    	        int size = getHtmlFontSize(run.getFontSize());
+    	        if (size != 3) optionFont = optionFont + " size="+size;
+    	        int color = run.getIco24();
+    	        if (color != -1) optionFont = optionFont + " color=\""+getColor(color)+"\"";
+            }
+            return optionFont;
+        }
+        /*
+         * Tạo các tag html
          */
-        protected String charToWiki(CharacterRun run)
-                throws IOException, UnsupportedEncodingException 
-        {       
-                String textR;
-                short ssIndex = run.getSubSuperScriptIndex();
-                boolean isDeleted = run.isMarkedDeleted() || run.isFldVanished() || run.isStrikeThrough() || run.isDoubleStrikeThrough();                               /*
-                        /*
-                         * Điều khó hiểu là, giá trị text của CharacterRun đôi khi lại không trùng
-                         * với text của Paragraph. Do đó có thể chúng ta cần phải encode text của Paragraph
-                         * trước khi convert CharacterRun
-                         */
-                        textR = run.text();
-                        String mwOpen = "";
-                        String mwClose = "";
-                        String optionFont = getOptionFont(run);
-                        if (optionFont.length()>0) {
-                                mwOpen = "<font"+optionFont+">";
-                                mwClose = "</font>";
-                        }
-                        /*
-                         * Không xử lí định dạng với khoảng trống, kí tự đặc biệt
-                         * Chú ý rằng trong MS Word có nhiều định dạng gạch chân nhưng Mediawiki chỉ có một.
-                         * Chúng ta dùng các tag HTML cho các định dạng vì các phiên bản MW 1.14+ co ho tro chung
-                         * Việc cộng các tag phải theo kiểu "Last in first out", tag nào được mở trước thì sẽ đóng sau.
-                         * Ví dụ để tạo ra mã wikitext dạng: <b><i><u>ABCD></u></i></b>, thì thuật toán:
-                         * mwOpen=                                                mwClose=
-                         * <b>                                                         </b>
-                         * <b><i>                                                  </i></b>
-                         * <b><i><u>                                            </u></i></b>
-                         */
-                        textR = textR.replace(u07,"");
-                        textR = textR.replace(u0C,"");
-                        if (textR.trim().length() > 0){
-                                if (run.isBold()) {              mwOpen  = mwOpen +  "<b>";      mwClose = "</b>"   + mwClose; }
-                                if (run.isItalic()) {            mwOpen  = mwOpen +  "<i>";      mwClose = "</i>"   + mwClose; }
-                                if (run.getUnderlineCode() > 0) {mwOpen  = mwOpen +  "<u>";      mwClose = "</u>"   + mwClose; }
-                                if (isDeleted) {                 mwOpen  = mwOpen +  "<del>";    mwClose = "</del>" + mwClose; }
-                                if (ssIndex == 1) {              mwOpen  = mwOpen +  "<sup>";    mwClose = "</sup>" + mwClose; }
-                                if (ssIndex == 2) {              mwOpen  = mwOpen +  "<sub>";    mwClose = "</sub>" + mwClose; }
-                                if (run.isHighlighted()) {       mwOpen  = mwOpen +  "<em>";     mwClose = "</em>"  + mwClose; }
-                                /*
-                                 * Khi CharacterRun có 1 trong các định dạng trên thì sẽ convert
-                                 */
-                                if (mwOpen.length () > 0){
-                                        textR = addMore(textR,mwClose);
-                                        textR = mwOpen + textR;
-                                }
-                        }
-                   return textR;
+    	protected void getTagHtml(CharacterRun run) {
+    		String textR;
+    		short ssIndex = run.getSubSuperScriptIndex();
+    		boolean isDeleted = run.isMarkedDeleted() || run.isFldVanished() || run.isStrikeThrough() || run.isDoubleStrikeThrough();    
+    		textR = run.text();
+    		tagOpen = "";
+    		tagClose = "";
+    		String optionFont = getOptionFont(run);
+    		if (optionFont.length() > 0) {
+    			tagOpen = "<font"+optionFont+">";
+    			tagClose = "</font>";
+    		}
+    		if (textR.trim().length() > 0){
+    			if (run.isBold()) {				tagOpen  = tagOpen +  "<b>"; 		tagClose = "</b>" 	+ tagClose; }
+    			if (run.isItalic()) {			tagOpen  = tagOpen +  "<i>"; 		tagClose = "</i>" 	+ tagClose; }
+    			if (run.getUnderlineCode() > 0) {tagOpen  = tagOpen +  "<u>"; 		tagClose = "</u>" 	+ tagClose;}
+    			if (isDeleted) {				tagOpen  = tagOpen +  "<del>"; 	tagClose = "</del>" 	+ tagClose; }
+    			if (ssIndex == 1) {				tagOpen  = tagOpen +  "<sup>"; 	tagClose = "</sup>" 	+ tagClose; }
+    			if (ssIndex == 2) {				tagOpen  = tagOpen +  "<sub>"; 	tagClose = "</sub>" 	+ tagClose; }
+    			if (run.isHighlighted()) {		tagOpen  = tagOpen +  "<em>"; 	tagClose = "</em>" 	+ tagClose; }
+    		}
         }
         /*
          * Hàm trả về mã tag wikitext cho danh sách list (ul) là ol (*) hay li (#)
@@ -333,6 +312,8 @@ public class WordToMwtext {
                 throws IOException, UnsupportedEncodingException  
         {
                 String mwText ="";
+        		String tagOpenOld = "";
+        		String tagCloseOld = "";
                 int headerLevel = 0;
                 boolean isCaption = false;
                 int ilfo = para.getIlfo();//kiểu list nào {Bullet, Numbering}
@@ -353,7 +334,8 @@ public class WordToMwtext {
                  */
                 String strObject="";
                 boolean object = false;
-                for (int z = 0; z < para.numCharacterRuns(); z++) {
+                int numRun = para.numCharacterRuns();
+                for (int z = 0; z < numRun; z++) {
                 	CharacterRun run = para.getCharacterRun(z);
             		if (picTable.hasPicture(run)) mwText += imagesToWiki(run);
             		else
@@ -367,7 +349,35 @@ public class WordToMwtext {
             				strObject = "";
             			}
             		}
-            		else mwText += charToWiki(run);
+            		else {
+    					String runText = run.text();
+    					runText = runText.replace(u07,"");
+    					runText = runText.replace(u0C,"");
+    					runText = runText.replace(u01,"");
+    					boolean hasContent = run.text().trim().length()>0;
+    					if (hasContent){
+    						getTagHtml(run);
+    						boolean hasTagOpen = tagOpen.length()>0;
+    						if (hasTagOpen){
+    							if (!tagOpen.equals(tagOpenOld)) {
+    								if (tagOpenOld.length()>0) mwText = addMore(mwText,tagCloseOld);
+    								mwText += tagOpen;
+    								tagOpenOld = tagOpen;
+    								tagCloseOld = tagClose;
+    							}
+    							if (z == numRun-1) runText = addMore(runText,tagClose);
+    						}
+    						else 
+    							if (tagOpenOld.length()>0){
+    								mwText = addMore(mwText,tagCloseOld);
+    								tagOpenOld = ""; tagCloseOld = ""; 
+    							}
+    					}
+    					else 
+    						if ((z == numRun-1)&&(tagOpenOld.length()>0))
+    							mwText = addMore(mwText,tagCloseOld);
+    					mwText += runText;
+            		}
                 }
                 /*
                  * Bổ sung định dạng cho các loại paragraph
@@ -401,18 +411,6 @@ public class WordToMwtext {
                                 mwText = TAG_HEADER[headerLevel] + SPACE + mwText;
                         }
                 }
-                else 
-                        numEnter = 0;
-                /*
-                 * Thực tế là POI không "giỏi tiếng Việt", thỉnh thoảng nó tách một từ tiếng việt
-                 * thành nhiều CharacterRun. Điều này dẫn đến việc lặp các tag. Chẳng hạn, thay vì
-                 * <b>Cộng</b> thì CharacterRun lại trả về <b>C</b><b>ộ</b><b>ng</b>
-                 * Vì thế, chúng ta có thể xóa sự thừa các tag này
-                 */
-                mwText = mwText.replaceAll("</b><b>","");
-                mwText = mwText.replaceAll("</i><i>","");
-                mwText = mwText.replaceAll("</u><u>","");
-                mwText = mwText.replaceAll("</s><s>","");
                 return mwText;
         }
     /*
@@ -502,8 +500,7 @@ public class WordToMwtext {
                 }
                 mwText = strRow + mwText;
         }
-        mwText = "{|class=\"wikitable\" width=\"100%\"" + mwText + "\n|}";
-        numEnter = 2;
+        mwText = "{|class=\"wikitable\" width=\"100%\"" + mwText + "\n|}"+Enter[1];
         return mwText;
         }
     /*
