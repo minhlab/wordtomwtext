@@ -46,7 +46,7 @@ PicturesTable picTable;
 * Chỉ viết phần main name, còn extension name thì đã cộng ở dưới
 * Chúng ta làm vậy, vì biến này còn dùng để đặt tên cho file ảnh nếu có
 */
-String nameInput = "Bai_giang_thao_giang_11.2007";
+String nameInput = "A 9584   Huong dan nam hoc 2007-2008 7 9 2007";
 /*
 * Dùng một chuỗi kí tự để tạo mã list {#, *} cho kiểu danh sách
 */
@@ -83,6 +83,18 @@ String u0C = String.valueOf('\u000C');//chưa biết kí tự này có chức n�
 String u14 = String.valueOf('\u0014');//dính liền đằng sau u01
 String u15 = String.valueOf('\u0015');//kết thúc một phần tử
 String u22 = String.valueOf('\u0022');//kí tự nháy kép (")
+/*
+* Các kí tự đặc biệt trong wikitext
+*/
+String specialChars = "*#:-";
+/*
+* Các kí tự trống
+*/
+String whiteSpaceChars = " \t\f";
+/*
+* Các kí tự xuống hàng
+*/
+String enterChars = "\r\n";
 /*
 * Các hàm nhận dạng bắt đầu và kết thúc một phần tử đặc biệt
 */
@@ -301,6 +313,47 @@ protected String mwLi(int ilfo){
 	return symbol;
 }
 /*
+* Xóa các kí tự trắng ở đầu chuỗi
+*/
+protected String trimLeft(String line) {
+	int start = 0;
+	while (start < line.length()){
+		if (whiteSpaceChars.indexOf(line.charAt(start)) == -1) {
+			break;
+		}
+		start++;
+	}
+	return line.substring(start);
+}
+/*
+* Xóa các kí tự trắng ở cuối chuỗi
+*/
+protected String trimRight(String line) {
+	int end = line.length()-2;
+	while (end > 0){
+		if (whiteSpaceChars.indexOf(line.charAt(end)) == -1) {
+			break;
+		}
+		end--;
+	}
+	if (end > 0 && end < line.length()-2) return line.substring(0,end+1);
+	return line;
+}
+/*
+* Xóa các kí tự xuống hàng
+*/
+protected String delEnter(String cell) {
+	int end = cell.length()-1;
+	while (end > 0){
+		if (enterChars.indexOf(cell.charAt(end)) == -1) {
+			break;
+		}
+		end--;
+	}
+	if (end > 0 && end < cell.length()-1) return cell.substring(0,end+1);
+	return cell;
+}
+/*
 * Convert một đoạn văn (Paragraph) thành wikitext
 * Đầu tiên chúng ta cần convert các đặc trưng (CharacterRun)
 * sang wikitext, sau đó cập nhật mã wikitext cho kiểu của đoạn văn
@@ -313,6 +366,7 @@ throws IOException, UnsupportedEncodingException {
 	String tagCloseOld = "";
 	int headerLevel = 0;
 	boolean isCaption = false;
+	boolean isTitle = false;
 	int ilfo = para.getIlfo();//kiểu list nào {Bullet, Numbering}
 	int ilvl = para.getIlvl() + 1;//cấp độ, hay mức lùi vào đầu dòng
 	StyleDescription paragraphStyle = styleSheet.getStyleDescription (para.getStyleIndex ());
@@ -324,6 +378,7 @@ throws IOException, UnsupportedEncodingException {
 	* "Level" của đoạn văn
 	*/
 	if (styleName.startsWith ("Caption")) isCaption = true;
+	if (styleName.startsWith ("Title")) isTitle = true;
 	if (styleName.startsWith ("Heading")) 
 		headerLevel = Integer.parseInt (styleName.substring (8));
 	/*
@@ -381,7 +436,7 @@ throws IOException, UnsupportedEncodingException {
 	* Bổ sung định dạng cho các loại paragraph
 	* Hiển nhiên, chúng ta chỉ làm việc này nếu đoạn văn có nội dung
 	*/
-	if (mwText.length() > 0){
+	if (mwText.trim().length() > 0){
 		numEnter = 2;
 		/*
 		* Kiểm tra xem đoạn có phải là danh sách hay không
@@ -403,27 +458,12 @@ throws IOException, UnsupportedEncodingException {
 		else 
 		mwUlList = "";
 
-		if (isCaption) mwText = "<center>"+mwText+"</center>";
-		if ((headerLevel > 0)&&(headerLevel <= 9)) {
-			mwText = addMore(mwText,SPACE + TAG_HEADER[headerLevel]);
-			mwText = TAG_HEADER[headerLevel] + SPACE + mwText;
-		}
+		if (isCaption) mwText = addMore("<center>"+mwText,"</center>");
+		if (isTitle) mwText = addMore("<title>"+mwText,"</title>");
+		if ((headerLevel > 0)&&(headerLevel <= 9)) mwText = addMore(TAG_HEADER[headerLevel] + SPACE + mwText,SPACE + TAG_HEADER[headerLevel]);
+		if (isTitle||((headerLevel > 0)&&(headerLevel <= 9))) numEnter = 0;
 	}
-	return mwText;
-}
-/*
-* Xóa các kí tự trắng ở đầu chuỗi
-*/
-protected String trimLeft(String line) {
-	int start = 0;
-	String whiteSpaceChars = " \t\f";
-	while (start < line.length()){
-		if (whiteSpaceChars.indexOf(line.charAt(start)) == -1) {
-			break;
-		}
-		start++;
-	}
-	return line.substring(start);
+	return trimRight(trimLeft(mwText));
 }
 /*
 * Hàm trả về số cột tối đa trong bảng cùng với chiều rộng của hàng tương ứng
@@ -491,9 +531,8 @@ throws IOException, UnsupportedEncodingException {
 				if (k < numP-1) strCells += Enter[numEnter];
 				numEnter = 2;
 			}
-			strCells = trimLeft(strCells);
-			if (strCells.startsWith("-")||strCells.startsWith("*")
-			||strCells.startsWith("#")||strCells.startsWith(":")) strCells = "\n" + strCells;
+			strCells = delEnter(strCells);
+			if (specialChars.indexOf(strCells.charAt(0)) > -1) strCells = "\n" + strCells;
 			if (cell.isVerticallyMerged()){
 				if (cell.isFirstVerticallyMerged()){
 					optionSpan += "rowspan=\""+rowspan[cellAdded]+"\"|";
