@@ -46,7 +46,7 @@ PicturesTable picTable;
 * Chỉ viết phần main name, còn extension name thì đã cộng ở dưới
 * Chúng ta làm vậy, vì biến này còn dùng để đặt tên cho file ảnh nếu có
 */
-String nameInput = "A 9584   Huong dan nam hoc 2007-2008 7 9 2007";
+String nameInput = "Bai_giang_thao_giang_11.2007";
 /*
 * Dùng một chuỗi kí tự để tạo mã list {#, *} cho kiểu danh sách
 */
@@ -412,6 +412,20 @@ throws IOException, UnsupportedEncodingException {
 	return mwText;
 }
 /*
+* Xóa các kí tự trắng ở đầu chuỗi
+*/
+protected String trimLeft(String line) {
+	int start = 0;
+	String whiteSpaceChars = " \t\f";
+	while (start < line.length()){
+		if (whiteSpaceChars.indexOf(line.charAt(start)) == -1) {
+			break;
+		}
+		start++;
+	}
+	return line.substring(start);
+}
+/*
 * Hàm trả về số cột tối đa trong bảng cùng với chiều rộng của hàng tương ứng
 */ 
 protected void maxColWidth(Table table){
@@ -477,19 +491,22 @@ throws IOException, UnsupportedEncodingException {
 				if (k < numP-1) strCells += Enter[numEnter];
 				numEnter = 2;
 			}
+			strCells = trimLeft(strCells);
+			if (strCells.startsWith("-")||strCells.startsWith("*")
+			||strCells.startsWith("#")||strCells.startsWith(":")) strCells = "\n" + strCells;
 			if (cell.isVerticallyMerged()){
 				if (cell.isFirstVerticallyMerged()){
 					optionSpan += "rowspan=\""+rowspan[cellAdded]+"\"|";
-					strRow += "\n|" + optionSpan + "\n" + strCells;
+					strRow += "\n|" + optionSpan + strCells;
 					for (int k=cellAdded;k < cellAdded+colspan;k++) rowspan[k] = 1;
 				}
 				else
 					for (int k=cellAdded;k < cellAdded+colspan;k++) rowspan[k] += 1;
 			}
 			else
-			if (optionSpan.trim().length()==0) strRow += "\n|\n" + strCells;
+			if (optionSpan.trim().length()==0) strRow += "\n|" + strCells;
 			else
-				strRow += "\n|" + optionSpan.trim() + "|\n" + strCells;
+				strRow += "\n|" + optionSpan.trim() + "|" + strCells;
 			cellAdded += colspan;
 		}
 		mwText = strRow + mwText;
