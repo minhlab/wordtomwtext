@@ -2,6 +2,8 @@ package com.thuvienkhoahoc.wordtomwtext.ui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -51,7 +53,17 @@ public class PnlUploader extends AbstractFunctionalPanel<Project, Void> {
 	public void load(Project project) {
 		this.project = project;
 		done = false;
-		new PageNameChecker().execute();
+		Uploader uploader = new Uploader();
+		uploader.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if ("progress".equals(evt.getPropertyName())) {
+					barProgress.setValue((Integer)evt.getNewValue());
+				}
+			}
+		});
+		uploader.execute();
 		txtMessage.setText("");
 	}
 
@@ -68,15 +80,14 @@ public class PnlUploader extends AbstractFunctionalPanel<Project, Void> {
 	/*
 	 * Workers
 	 */
-	private class PageNameChecker extends SwingWorker<Void, String> {
+	private class Uploader extends SwingWorker<Void, String> {
 
-		private boolean conflict;
+		private boolean conflict = false, error = false;
 
 		@Override
 		protected Void doInBackground() throws Exception {
 			int counter = 0, total = project.getPages().size()
 					+ project.getImages().size();
-			conflict = false;
 			publish("Kiểm tra tên bài viết và ảnh...\n");
 
 			for (Page page : project.getPages()) {
@@ -109,47 +120,26 @@ public class PnlUploader extends AbstractFunctionalPanel<Project, Void> {
 				setProgress(++counter * 100 / total);
 			}
 
-			return null;
-		}
-
-		@Override
-		protected void process(List<String> chunks) {
-			for (String chunk : chunks) {
-				appendMessage(chunk);
-			}
-		}
-
-		@Override
-		protected void done() {
-			if (!conflict) {
-				new RealUploader().execute();
-			} else {
+			if (conflict) {
 				JOptionPane.showMessageDialog(PnlUploader.this,
 						"Bài viết bị trùng tên",
 						"Bài viết của bạn trùng tên với bài trên "
 								+ Application.getInstance().getSitename()
 								+ ". Xin hãy sửa lại tên bài viết.",
 						JOptionPane.ERROR_MESSAGE);
+				return null;
 			}
-		}
-
-	};
-
-	private class RealUploader extends SwingWorker<Void, String> {
-
-		private boolean error = false;
-
-		@Override
-		protected Void doInBackground() throws Exception {
-			int counter = 0, total = project.getPages().size()
-					+ project.getImages().size();
+			
+			counter = 0;
+			total = project.getPages().size()
+			+ project.getImages().size();
 
 			publish("Tải lên " + Application.getInstance().getSitename()
 					+ "...\n");
-
+		
 			for (Page page : project.getPages()) {
 				publish("\t" + page.getLabel() + "... ");
-
+		
 				try {
 					Application.getInstance().getBot().writeContent(page);
 					publish("OK\n");
@@ -158,13 +148,13 @@ public class PnlUploader extends AbstractFunctionalPanel<Project, Void> {
 					publish("LỖI: " + ex.getMessage() + "\n");
 					ex.printStackTrace();
 				}
-
+		
 				setProgress(++counter * 100 / total);
 			}
-
+		
 			for (Image image : project.getImages()) {
 				publish("\t" + image.getLabel() + "... ");
-
+		
 				try {
 					Application.getInstance().getBot().uploadFile(image);
 					publish("OK\n");
@@ -173,22 +163,10 @@ public class PnlUploader extends AbstractFunctionalPanel<Project, Void> {
 					publish("LỖI: " + ex.getMessage() + "\n");
 					ex.printStackTrace();
 				}
-
+		
 				setProgress(++counter * 100 / total);
 			}
 
-			return null;
-		}
-
-		@Override
-		protected void process(List<String> chunks) {
-			for (String chunk : chunks) {
-				appendMessage(chunk);
-			}
-		}
-
-		@Override
-		protected void done() {
 			if (!error) {
 				JOptionPane.showMessageDialog(PnlUploader.this,
 						"Xin chúc mừng!",
@@ -204,9 +182,18 @@ public class PnlUploader extends AbstractFunctionalPanel<Project, Void> {
 								"Chương trình gặp lỗi khi tải lên bài viết và/hoặc hình ảnh của bạn. Hãy kiểm tra lại và tải lên bằng tay nếu cần.",
 								JOptionPane.ERROR_MESSAGE);
 			}
+
+			return null;
 		}
 
-	}
+		@Override
+		protected void process(List<String> chunks) {
+			for (String chunk : chunks) {
+				appendMessage(chunk);
+			}
+		}
+
+	};
 
 	/*
 	 * Components
