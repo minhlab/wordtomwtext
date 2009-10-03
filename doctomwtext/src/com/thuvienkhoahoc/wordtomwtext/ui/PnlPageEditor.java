@@ -6,6 +6,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -46,7 +47,7 @@ public class PnlPageEditor extends JPanel {
 				setDirty(true);
 			}
 		});
-		add(txtContent, BorderLayout.CENTER);
+		add(new JScrollPane(txtContent), BorderLayout.CENTER);
 	}
 
 	/*

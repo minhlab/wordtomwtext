@@ -8,7 +8,7 @@ public class Image extends SimpleFile {
 
 	private boolean markedForRemoval;
 	
-	public Image(String Label, File Filename) {
+	public Image(String Label, String Filename) {
 		super(Label, Filename);
 	}
 
