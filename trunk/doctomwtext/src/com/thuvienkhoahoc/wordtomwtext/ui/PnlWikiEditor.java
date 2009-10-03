@@ -1,12 +1,15 @@
 package com.thuvienkhoahoc.wordtomwtext.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 
@@ -26,27 +29,30 @@ public class PnlWikiEditor extends AbstractFunctionalPanel<List<File>, Project> 
 
 	private void initComponents() {
 		setLayout(new BorderLayout());
-		
+	
 		treeProject.setBorder(BorderFactory.createEtchedBorder());
 		treeProject.setModel(modProject);
 		treeProject.setCellRenderer(new ProjectTreeCellRenderer());
-		add(treeProject, BorderLayout.WEST);
+		JScrollPane scrProject = new JScrollPane(treeProject);
+		scrProject.setPreferredSize(new Dimension(280, 500));
+		add(scrProject, BorderLayout.WEST);
 
 		add(pnlMain, BorderLayout.CENTER);
 	}
 
 	@Override
 	public void load(List<File> files) {
-		project = new Project();
-		for (File file : files) {
-			project.importData(converter.convert(file));
-		}
-		modProject.setProject(project);
-		
-		// pre-open tabs for main pages only
-		pnlMain.removeAll();
-		for (Page page : project.getPages()) {
-			addPageTab(page);
+		try {
+			project = converter.convert(files);
+			modProject.setProject(project);
+			// pre-open tabs for main pages only
+			pnlMain.removeAll();
+			for (Page page : project.getPages()) {
+				addPageTab(page);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

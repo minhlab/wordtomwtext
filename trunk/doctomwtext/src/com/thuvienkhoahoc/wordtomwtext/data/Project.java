@@ -11,14 +11,14 @@ public class Project {
 	public List<Image> getImages() {
 		return images;
 	}
-	
+
 	public List<Page> getPages() {
 		return pages;
 	}
-	
+
 	public void importData(Project anotherProject) {
 		pages.addAll(anotherProject.pages);
 		images.addAll(anotherProject.getImages());
 	}
-	
+
 }
