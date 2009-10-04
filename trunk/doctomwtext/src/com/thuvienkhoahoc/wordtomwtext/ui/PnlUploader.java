@@ -21,7 +21,7 @@ import com.thuvienkhoahoc.wordtomwtext.data.Page;
 import com.thuvienkhoahoc.wordtomwtext.data.Project;
 
 @SuppressWarnings("serial")
-public class PnlUploader extends AbstractFunctionalPanel<Project, Void> {
+public class PnlUploader extends AbstractFunctionalPanel {
 
 	private boolean done;
 	private Project project;
@@ -50,8 +50,8 @@ public class PnlUploader extends AbstractFunctionalPanel<Project, Void> {
 	}
 
 	@Override
-	public void load(Project project) {
-		this.project = project;
+	public void load(Object obj) {
+		this.project = (Project) obj;
 		done = false;
 		Uploader uploader = new Uploader();
 		uploader.addPropertyChangeListener(new PropertyChangeListener() {

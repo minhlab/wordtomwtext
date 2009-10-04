@@ -1,5 +1,8 @@
 package com.thuvienkhoahoc.wordtomwtext.ui;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -9,8 +12,10 @@ import javax.swing.tree.TreePath;
 import com.thuvienkhoahoc.wordtomwtext.data.Image;
 import com.thuvienkhoahoc.wordtomwtext.data.Page;
 import com.thuvienkhoahoc.wordtomwtext.data.Project;
+import com.thuvienkhoahoc.wordtomwtext.data.ProjectEvent;
+import com.thuvienkhoahoc.wordtomwtext.data.ProjectListener;
 
-public class ProjectTreeModel implements TreeModel {
+public class ProjectTreeModel implements TreeModel, ProjectListener {
 
 	private static final String PLACEHOLDER_PROJECT = "Dự án";
 	private static final String PLACEHOLDER_PAGES = "Bài viết";
@@ -28,16 +33,12 @@ public class ProjectTreeModel implements TreeModel {
 	}
 
 	public void setProject(Project project) {
+		if (this.project != null) {
+			this.project.removeProjectListener(this);
+		}
 		this.project = project;
+		this.project.addProjectListener(this);
 		fireTreeStructureChanged(this, null);
-	}
-
-	public void imageChanged(Image image) {
-		// TODO implement this
-	}
-
-	public void pageChanged(Page page) {
-		// TODO implement this
 	}
 
 	/*
@@ -125,7 +126,14 @@ public class ProjectTreeModel implements TreeModel {
 	}
 
 	public void valueForPathChanged(TreePath path, Object newValue) {
-		// TODO Auto-generated method stub
+		Object changedNode = path.getLastPathComponent();
+		if (changedNode instanceof Page && newValue instanceof String) {
+			Page page = (Page) changedNode;
+			page.setShortLabel((String) newValue);
+		} else if (changedNode instanceof Image && newValue instanceof String) {
+			Image image = (Image) changedNode;
+			image.setLabel((String) newValue);
+		}
 	}
 
 	/*
@@ -324,6 +332,87 @@ public class ProjectTreeModel implements TreeModel {
 				((TreeModelListener) listeners[i + 1]).treeStructureChanged(e);
 			}
 		}
+	}
+
+	protected Object[] getPathToRoot(Object o) {
+		if (o instanceof Page) {
+			Page page = (Page) o;
+			ArrayList<Object> nodeList = new ArrayList<Object>();
+			Page pageCursor = page.getParent();
+			while (pageCursor != null) {
+				nodeList.add(pageCursor);
+				pageCursor = pageCursor.getParent();
+			}
+			nodeList.add(PLACEHOLDER_PAGES);
+			nodeList.add(PLACEHOLDER_PROJECT);
+			Collections.reverse(nodeList);
+			return nodeList.toArray();
+		}
+		if (o instanceof Image) {
+			return new Object[] { PLACEHOLDER_PROJECT, PLACEHOLDER_IMAGES };
+		}
+		return new Object[] { o };
+	}
+
+	@Override
+	public void imageAdded(ProjectEvent evt) {
+		Object[] pathToRoot = getPathToRoot(evt.getImage());
+		int[] childIndices = new int[] { evt.getIndex() };
+		Object[] children = new Object[] { evt.getImage() };
+		fireTreeNodesInserted(this, pathToRoot, childIndices, children);
+	}
+
+	@Override
+	public void imagePropertyChanged(ProjectEvent evt) {
+		Object[] pathToRoot = getPathToRoot(evt.getImage());
+		int[] childIndices = new int[] { project.getImages().indexOf(
+				evt.getImage()) };
+		Object[] children = new Object[] { evt.getImage() };
+		fireTreeNodesChanged(this, pathToRoot, childIndices, children);
+	}
+
+	@Override
+	public void imageRemoved(ProjectEvent evt) {
+		Object[] pathToRoot = getPathToRoot(evt.getImage());
+		int[] childIndices = new int[] { evt.getIndex() };
+		Object[] children = new Object[] { evt.getImage() };
+		fireTreeNodesRemoved(this, pathToRoot, childIndices, children);
+	}
+
+	@Override
+	public void pageAdded(ProjectEvent evt) {
+		Object[] pathToRoot = getPathToRoot(evt.getPage());
+		int[] childIndices = new int[] { evt.getIndex() };
+		Object[] children = new Object[] { evt.getPage() };
+		fireTreeNodesInserted(this, pathToRoot, childIndices, children);
+	}
+
+	@Override
+	public void pagePropertyChanged(ProjectEvent evt) {
+		Page page = evt.getPage();
+		Object[] pathToRoot = getPathToRoot(page);
+		int[] childIndices = new int[1];
+		if (page.getParent() == null) {
+			childIndices[0] = project.getPages().indexOf(page);
+		} else {
+			childIndices[0] = page.getParent().getChildren().indexOf(page);
+		}
+		Object[] children = new Object[] { page };
+		// fire event
+		fireTreeNodesChanged(this, pathToRoot, childIndices, children);
+	}
+
+	@Override
+	public void pageRemoved(ProjectEvent evt) {
+		Object[] pathToRoot = getPathToRoot(evt.getPage());
+		int[] childIndices = new int[] { evt.getIndex() };
+		Object[] children = new Object[] { evt.getPage() };
+		fireTreeNodesRemoved(this, pathToRoot, childIndices, children);
+	}
+
+	@Override
+	public void projectChanged(ProjectEvent evt) {
+		fireTreeStructureChanged(this, null);
 	}
 
 }

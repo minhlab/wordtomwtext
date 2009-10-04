@@ -3,11 +3,11 @@ package com.thuvienkhoahoc.wordtomwtext.ui;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
-public abstract class AbstractFunctionalPanel<I,O> extends JPanel {
+public abstract class AbstractFunctionalPanel extends JPanel {
 	
-	public abstract void load(I data);
+	public abstract void load(Object data);
 	
-	public abstract O getResult();
+	public abstract Object getResult();
 	
 	public abstract boolean next();
 	

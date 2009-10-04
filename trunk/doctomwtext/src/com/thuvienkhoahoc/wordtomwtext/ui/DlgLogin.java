@@ -19,12 +19,11 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import net.sourceforge.jwbf.actions.mw.util.ActionException;
-import net.sourceforge.jwbf.bots.MediaWikiBot;
+
+import com.thuvienkhoahoc.wordtomwtext.Application;
 
 @SuppressWarnings("serial")
 public class DlgLogin extends JDialog {
-
-	private MediaWikiBot bot = null;
 
 	public DlgLogin(JFrame parent) {
 		super(parent);
@@ -60,7 +59,6 @@ public class DlgLogin extends JDialog {
 						GridBagConstraints.EAST, GridBagConstraints.NONE,
 						new Insets(0, 5, 0, 3), 0, 0));
 		// TODO remove default user
-		txtUsername.setText("Cumeo89");
 		getContentPane().add(
 				txtUsername,
 				new GridBagConstraints(1, 1, 1, 1, 1.0, 0,
@@ -73,6 +71,7 @@ public class DlgLogin extends JDialog {
 				new GridBagConstraints(0, 2, 1, 1, 0, 0,
 						GridBagConstraints.EAST, GridBagConstraints.NONE,
 						new Insets(0, 5, 0, 3), 0, 0));
+		// TODO remove password
 		getContentPane().add(
 				txtPassword,
 				new GridBagConstraints(1, 2, 1, 1, 1.0, 0,
@@ -110,19 +109,19 @@ public class DlgLogin extends JDialog {
 	}
 
 	protected void onCancel() {
-		bot = null;
 		setVisible(false);
 	}
 
 	protected void onLogin() {
 		try {
-			bot = new MediaWikiBot(txtSite.getText());
-			bot.login(txtUsername.getText(), String.valueOf(txtPassword
-					.getPassword()));
+			Application.getInstance().login(txtSite.getText(),
+					txtUsername.getText(),
+					String.valueOf(txtPassword.getPassword()));
 			setVisible(false);
 		} catch (MalformedURLException e) {
 			JOptionPane.showMessageDialog(this, "Lỗi đăng nhập",
-					"Đường dẫn sai. Mời bạn nhập lại", JOptionPane.ERROR_MESSAGE);
+					"Đường dẫn sai. Mời bạn nhập lại",
+					JOptionPane.ERROR_MESSAGE);
 			txtSite.selectAll();
 			txtSite.requestFocusInWindow();
 		} catch (ActionException e) {
@@ -131,14 +130,6 @@ public class DlgLogin extends JDialog {
 			txtUsername.selectAll();
 			txtUsername.requestFocusInWindow();
 		}
-	}
-
-	public String getUsername() {
-		return txtUsername.getText();
-	}
-
-	public MediaWikiBot getBot() {
-		return bot;
 	}
 
 	private GridBagLayout layoutMain = new GridBagLayout();
