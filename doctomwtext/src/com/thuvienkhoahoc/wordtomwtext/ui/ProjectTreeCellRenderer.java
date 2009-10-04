@@ -2,6 +2,7 @@ package com.thuvienkhoahoc.wordtomwtext.ui;
 
 import java.awt.Component;
 
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -16,22 +17,23 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer {
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
 			boolean sel, boolean expanded, boolean leaf, int row,
 			boolean hasFocus) {
+		String text = value.toString();
+		Icon icon = null;
 		if (value instanceof Page) {
 			Page page = (Page) value;
-			JLabel label = (JLabel) super.getTreeCellRendererComponent(tree,
-					page.getShortLabel(), sel, expanded, leaf, row, hasFocus);
-			// label.setIcon(icon);
-			return label;
-		}
-		if (value instanceof Image) {
+			text = page.getShortLabel();
+			//TODO change icon
+		} else if (value instanceof Image) {
 			Image image = (Image) value;
-			JLabel label = (JLabel) super.getTreeCellRendererComponent(tree,
-					image.getLabel(), sel, expanded, leaf, row, hasFocus);
-			// label.setIcon(icon);
-			return label;
+			text = image.getLabel();
+			//TODO change icon
 		}
-		return super.getTreeCellRendererComponent(tree, value, sel, expanded,
-				leaf, row, hasFocus);
+		JLabel label = (JLabel) super.getTreeCellRendererComponent(tree, text,
+				sel, expanded, leaf, row, hasFocus);
+		if (icon != null) {
+			label.setIcon(icon);
+		}
+		return label;
 	}
 
 }

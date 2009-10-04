@@ -7,9 +7,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -19,10 +18,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.filechooser.FileFilter;
 
-@SuppressWarnings("serial")
-public class PnlFileChooser extends AbstractFunctionalPanel<Void, List<File>> {
+import com.thuvienkhoahoc.wordtomwtext.data.Project;
+import com.thuvienkhoahoc.wordtomwtext.logic.Converter;
 
-	private List<File> files = new ArrayList<File>();
+@SuppressWarnings("serial")
+public class PnlFileChooser extends AbstractFunctionalPanel {
+
+	private Project project;
+	private Converter converter = new Converter();
 
 	public PnlFileChooser() {
 		setLayout(layout);
@@ -93,30 +96,27 @@ public class PnlFileChooser extends AbstractFunctionalPanel<Void, List<File>> {
 		int[] selectedRows = tblFiles.getSelectedRows();
 		Arrays.sort(selectedRows); // make sure that it is sorted ascendingly
 		for (int i = selectedRows.length - 1; i >= 0; i--) {
-			files.remove(selectedRows[i]);
+			modFiles.remove(selectedRows[i]);
 		}
-		modFiles.fireTableDataChanged();
 	}
 
 	protected void onAddFile() {
 		File[] selectedFiles = realChooser.getSelectedFiles();
 		for (int i = 0; i < selectedFiles.length; i++) {
-			if (!files.contains(selectedFiles[i])) {
-				files.add(selectedFiles[i]);
+			if (!modFiles.contains(selectedFiles[i])) {
+				modFiles.add(selectedFiles[i]);
 			}
 		}
-		modFiles.fireTableDataChanged();
 	}
 
 	@Override
-	public void load(Void data) {
-		files.clear();
-		modFiles.fireTableDataChanged();
+	public void load(Object data) {
+		modFiles.clear();
 	}
 
 	@Override
 	public boolean next() {
-		if (files.size() <= 0) {
+		if (modFiles.getFileList().size() <= 0) {
 			JOptionPane
 					.showMessageDialog(
 							this,
@@ -124,14 +124,22 @@ public class PnlFileChooser extends AbstractFunctionalPanel<Void, List<File>> {
 							"Bạn chưa chọn tệp nào", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
+		try {
+			project = converter.convert(modFiles.getFileList());
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(this,
+					"Xin hãy kiểm tra lại những tệp được chọn.",
+					"Có lỗi khi đọc tệp", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
 		return true;
 	}
 
 	@Override
-	public List<File> getResult() {
-		return files;
+	public Project getResult() {
+		return project;
 	}
-	
+
 	/*
 	 * Components
 	 */
@@ -141,6 +149,6 @@ public class PnlFileChooser extends AbstractFunctionalPanel<Void, List<File>> {
 	private JPanel pnlFiles = new JPanel();
 	private JButton btnAdd = new JButton();
 	private JButton btnRemove = new JButton();
-	private FileTableModel modFiles = new FileTableModel(files);
+	private FileTableModel modFiles = new FileTableModel();
 
 }

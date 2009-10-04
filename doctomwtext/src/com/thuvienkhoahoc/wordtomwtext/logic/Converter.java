@@ -35,7 +35,7 @@ public class Converter {
 		currentProject = new Project();
 		for (File file : wordFiles) {
 			convertAndExtractImages(file);
-			currentProject.getPages().add(currentPage);
+			currentProject.addPage(currentPage);
 		}
 		return currentProject;
 	}
@@ -272,7 +272,7 @@ public class Converter {
 			String namePic = nameInput+"-"+pic.suggestFullFileName();
 			String filename = DIR_NAME+"\\"+namePic;
 			OutputStream outPic = new FileOutputStream(filename);
-			currentProject.getImages().add(new Image(namePic, filename));
+			currentProject.addImage(new Image(namePic, filename));
 			pic.writeImageContent(outPic);
 			textR += "[["+MS_IMAGE+":"+namePic+"|"+MS_CENTER+"|150px|"+MS_CAPTION+"]]";
 		}
@@ -581,7 +581,7 @@ public class Converter {
 	* Thiết lập các thông số đầu vào, đầu ra
 	*/ 
 	public void convertAndExtractImages(File wordFile) throws IOException {
-		currentPage = new Page(null);
+		currentPage = new Page("Bài viết " + (pageCounter++));
 
 		StringWriter _out = new StringWriter();
 		Range range = null; 
@@ -634,10 +634,6 @@ public class Converter {
 		_out.close();
 		
 		currentPage.setText(_out.toString());
-		pageCounter++;
-		if (currentPage.getLabel().isEmpty()) {
-			currentPage.setLabel("Trang " + pageCounter);
-		}
 	}//END wordtomwtext
 	
 }

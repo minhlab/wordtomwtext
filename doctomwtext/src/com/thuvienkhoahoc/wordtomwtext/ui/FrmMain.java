@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -17,6 +19,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.thuvienkhoahoc.wordtomwtext.Application;
@@ -30,13 +33,35 @@ public class FrmMain extends JFrame {
 	}
 
 	private void initComponents() {
-		setTitle("Wordtomwtext - By VLOS");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setTitle("Wordtomwtext - By VLOS");
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		this.addWindowListener(new WindowAdapter() {
 
-		createTabbedPane(new String[] { "Chọn tài liệu Word",
-				"Chỉnh sửa nội dung", "Tải lên" },
-				new AbstractFunctionalPanel[] { new PnlFileChooser(),
-						new PnlWikiEditor(), new PnlUploader() });
+			@Override
+			public void windowClosing(WindowEvent e) {
+				onWindowClosing();
+			}
+		});
+
+		String[] titles = new String[] { "Chọn tài liệu Word",
+				"Chỉnh sửa nội dung", "Tải lên" };
+		AbstractFunctionalPanel[] panels = new AbstractFunctionalPanel[] {
+				new PnlFileChooser(), new PnlProjectEditor(), new PnlUploader() };
+
+		pnlTabRun.setLayout(layoutTabRun);
+		tabLabels = new JLabel[titles.length];
+		for (int i = 0; i < titles.length; i++) {
+			tabLabels[i] = new JLabel(titles[i]);
+			pnlTabRun.add(tabLabels[i]);
+		}
+
+		pnlMainWrapper.setLayout(layoutMainWrapper);
+		tabPanels = panels;
+		for (int i = 0; i < titles.length; i++) {
+			pnlMainWrapper.add(panels[i], titles[i]);
+		}
+
+		setSelectedIndex(0, false, null);
 
 		pnlToolbar.setLayout(new BoxLayout(pnlToolbar, BoxLayout.LINE_AXIS));
 
@@ -93,22 +118,14 @@ public class FrmMain extends JFrame {
 		pack();
 	}
 
-	private void createTabbedPane(String[] titles,
-			AbstractFunctionalPanel[] panels) {
-		pnlTabRun.setLayout(layoutTabRun);
-		tabLabels = new JLabel[titles.length];
-		for (int i = 0; i < titles.length; i++) {
-			tabLabels[i] = new JLabel(titles[i]);
-			pnlTabRun.add(tabLabels[i]);
+	protected void onWindowClosing() {
+		if (JOptionPane
+				.showConfirmDialog(
+						this,
+						"Mọi tài liệu bạn đang soạn thảo (nếu có) sẽ bị mất. Bạn có chắc muốn thoát khỏi chương trình?",
+						"Xác nhận đóng chương trình", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			Application.getInstance().exit(0);
 		}
-
-		pnlMainWrapper.setLayout(layoutMainWrapper);
-		tabPanels = panels;
-		for (int i = 0; i < titles.length; i++) {
-			pnlMainWrapper.add(panels[i], titles[i]);
-		}
-
-		setSelectedIndex(0, false, null);
 	}
 
 	protected void onNext() {
@@ -142,8 +159,9 @@ public class FrmMain extends JFrame {
 
 	protected void onRelogin() {
 		setVisible(false);
-		if (!Application.getInstance().login()) {
-			System.exit(0);
+		Application.getInstance().logout();
+		if (!Application.getInstance().showLoginDialog()) {
+			Application.getInstance().exit(0);
 		}
 		lblUsername.setText(Application.getInstance().getUsername());
 		lblUsername.setToolTipText("tại "

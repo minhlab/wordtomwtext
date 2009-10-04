@@ -2,47 +2,58 @@ package com.thuvienkhoahoc.wordtomwtext.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.thuvienkhoahoc.wordtomwtext.data.Page;
+import com.thuvienkhoahoc.wordtomwtext.data.ProjectAdapter;
+import com.thuvienkhoahoc.wordtomwtext.data.ProjectEvent;
 
 @SuppressWarnings("serial")
-public class PnlPageEditor extends JPanel {
+public class PnlPageEditor extends PnlEditor {
 
-	private Page page;
-	private boolean dirty;
-	private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
-	
-	public PnlPageEditor(Page page) {
-		super();
-		this.page = page;
+	private final JTabbedPane tabbedPane;
+	private JTextPane txtContent = new JTextPane();
+
+	public PnlPageEditor(final JTabbedPane tabbedPane, Page page) {
+		super(page);
+		this.tabbedPane = tabbedPane;
+		page.getProject().addProjectListener(new ProjectAdapter() {
+			@Override
+			public void pagePropertyChanged(ProjectEvent evt) {
+				if ("label".equals(evt.getPropertyName())) {
+					onLabelChanged();
+				}
+			}
+		});
 		initComponents();
-		setDirty(false);
+	}
+
+	@Override
+	public Page getObject() {
+		return (Page) super.getObject();
 	}
 
 	private void initComponents() {
 		setLayout(new BorderLayout());
-		
+
 		txtContent.setFont(Font.getFont("Courier 12"));
-		txtContent.setText(page.getText());
+		txtContent.setText(getObject().getText());
 		// add listener after setting text to avoid unnecessary events
 		txtContent.getDocument().addDocumentListener(new DocumentListener() {
-			
+
 			public void removeUpdate(DocumentEvent e) {
 				setDirty(true);
 			}
-			
+
 			public void insertUpdate(DocumentEvent e) {
 				setDirty(true);
 			}
-			
+
 			public void changedUpdate(DocumentEvent e) {
 				setDirty(true);
 			}
@@ -50,76 +61,28 @@ public class PnlPageEditor extends JPanel {
 		add(new JScrollPane(txtContent), BorderLayout.CENTER);
 	}
 
-	/*
-	 * Accessors
-	 */
-	
-	public Page getPage() {
-		return page;
+	protected void onLabelChanged() {
+		updateLabel();
 	}
-	
+
+	@Override
 	public void discard() {
-		txtContent.setText(page.getText());
+		txtContent.setText(getObject().getText());
 		setDirty(false);
 	}
-	
+
+	@Override
 	public void save() {
-		page.setText(txtContent.getText());
+		getObject().setText(txtContent.getText());
 		setDirty(false);
 	}
-	
-	public boolean isDirty() {
-		return dirty;
-	}
-	
-	private void setDirty(boolean dirty) {
-		if (dirty != this.dirty) {
-			boolean oldValue = this.dirty;
-			this.dirty = dirty;
-			changeSupport.firePropertyChange("dirty", oldValue, dirty);
+
+	protected void updateLabel() {
+		String title = getObject().getLabel();
+		if (dirty) {
+			title = "*" + title;
 		}
-	}
-	
-	/*
-	 * Listener support
-	 * @see java.awt.Container#addPropertyChangeListener(java.beans.PropertyChangeListener)
-	 */
-	
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		changeSupport.addPropertyChangeListener(listener);
+		tabbedPane.setTitleAt(tabbedPane.indexOfComponent(this), title);
 	}
 
-	public void addPropertyChangeListener(String propertyName,
-			PropertyChangeListener listener) {
-		changeSupport.addPropertyChangeListener(propertyName, listener);
-	}
-
-	public PropertyChangeListener[] getPropertyChangeListeners() {
-		return changeSupport.getPropertyChangeListeners();
-	}
-
-	public PropertyChangeListener[] getPropertyChangeListeners(
-			String propertyName) {
-		return changeSupport.getPropertyChangeListeners(propertyName);
-	}
-
-	public boolean hasListeners(String propertyName) {
-		return changeSupport.hasListeners(propertyName);
-	}
-
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		changeSupport.removePropertyChangeListener(listener);
-	}
-
-	public void removePropertyChangeListener(String propertyName,
-			PropertyChangeListener listener) {
-		changeSupport.removePropertyChangeListener(propertyName, listener);
-	}
-
-	/*
-	 * Private components
-	 */
-
-	private JTextPane txtContent = new JTextPane();
-	
 }

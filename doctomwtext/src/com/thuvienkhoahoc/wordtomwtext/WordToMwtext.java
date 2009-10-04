@@ -46,7 +46,7 @@ PicturesTable picTable;
 * Chỉ viết phần main name, còn extension name thì đã cộng ở dưới
 * Chúng ta làm vậy, vì biến này còn dùng để đặt tên cho file ảnh nếu có
 */
-String nameInput = "A 9584   Huong dan nam hoc 2007-2008 7 9 2007";
+String nameInput = "picture";
 /*
 * Dùng một chuỗi kí tự để tạo mã list {#, *} cho kiểu danh sách
 */
@@ -532,7 +532,7 @@ throws IOException, UnsupportedEncodingException {
 				numEnter = 2;
 			}
 			strCells = delEnter(strCells);
-			if (specialChars.indexOf(strCells.charAt(0)) > -1) strCells = "\n" + strCells;
+			if (strCells.length() > 0 && specialChars.indexOf(strCells.charAt(0)) > -1) strCells = "\n" + strCells;
 			if (cell.isVerticallyMerged()){
 				if (cell.isFirstVerticallyMerged()){
 					optionSpan += "rowspan=\""+rowspan[cellAdded]+"\"|";
@@ -565,7 +565,7 @@ throws IOException, UnsupportedEncodingException  {
 	Paragraph para = null; 
 	boolean inTable = false; 
 	int numParas = 0; 
-	doc = new HWPFDocument(new FileInputStream(nameInput+".doc"));
+	doc = new HWPFDocument(new FileInputStream(nameInput + ".doc"));
 	range = doc.getRange(); 
 	styleSheet = doc.getStyleSheet();
 	picTable = doc.getPicturesTable();

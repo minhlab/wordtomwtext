@@ -1,0 +1,23 @@
+<title><font face="Cambria" size=6 color="">Đây là tài li</font><font size=6 color="">ệ</font><font face="Cambria" size=6 color="">u Word</font></title>= <font face="Cambria" size=4 color=""><b>Tiêu đ</b></font><font size=4 color=""><b>ề</b></font><font face="Cambria" size=4 color=""><b> 1</b></font> =<font size=2>B</font><font face="Arial" size=2>ạn có biết???</font>
+
+<font face="Arial" size=2>Ảnh nè[[Hình:picture-0.png|giữa|150px|Hình minh họa]]</font>
+
+<font face="Arial" size=2>OK, tạm thời như thế</font>
+
+== <font face="Cambria" color=""><b>Tiêu đ</b></font><font color=""><b>ề</b></font><font face="Cambria" color=""><b> 2</b></font> =={|class="wikitable" width="100%"
+|- valign="top"
+|<font size=2>H</font><font face="Arial" size=2>ọ</font>
+|<font size=2>Tên</font>
+|<font face="Arial" size=2>Ngày sinh</font>
+|<font size=2>Đi</font><font face="Arial" size=2>ểm</font>
+|- valign="top"
+|colspan="2"|<font size=2>Lê Minh</font>
+|<font size=2>30-9</font>
+|rowspan="2"|<font size=2>10</font>
+|- valign="top"
+|<font face="Arial" size=2>Phạm</font>
+|<font size=2>H</font><font face="Arial" size=2>ương</font>
+|<font size=2>3-7</font>
+|}
+
+

@@ -1,54 +1,67 @@
 package com.thuvienkhoahoc.wordtomwtext.ui;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import com.thuvienkhoahoc.wordtomwtext.data.Image;
+import com.thuvienkhoahoc.wordtomwtext.data.ProjectAdapter;
+import com.thuvienkhoahoc.wordtomwtext.data.ProjectEvent;
 
 @SuppressWarnings("serial")
-public class PnlImageEditor extends JPanel {
+public class PnlImageEditor extends PnlEditor {
 
-	Image image;
-
-	public PnlImageEditor(Image image) {
-		super();
-		this.image = image;
+	private final JTabbedPane tabbedPane;
+	
+	public PnlImageEditor(final JTabbedPane tabbedPane, Image image) {
+		super(image);
+		this.tabbedPane = tabbedPane;
+		image.getProject().addProjectListener(new ProjectAdapter() {
+			@Override
+			public void imagePropertyChanged(ProjectEvent evt) {
+				if ("label".equals(evt.getPropertyName())) {
+					onLabelChanged();
+				}
+			}
+		});		
 		initComponents();
 	}
 
 	private void initComponents() {
 		// TODO Auto-generated method stub
-		lblLabel.setText("Tên: ");
-
-		lblLabelChange.setText("thay đổi");
-		lblLabelChange.setForeground(Color.BLUE);
-		lblLabelChange
-				.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		lblLabelChange.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (e.getButton() == MouseEvent.BUTTON1) {
-					onChangeLabel();
-				}
-			}
-		});
 	}
 
-	protected void onChangeLabel() {
-		// TODO Auto-generated method stub
+	protected void onLabelChanged() {
+		updateLabel();
+	}
 
+	@Override
+	public void discard() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void save() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Image getObject() {
+		// TODO Auto-generated method stub
+		return (Image) super.getObject();
+	}
+	
+	@Override
+	protected void updateLabel() {
+		String title = getObject().getLabel();
+		if (dirty) {
+			title = "*" + title;
+		}
+		tabbedPane.setTitleAt(tabbedPane.indexOfComponent(this), title);
 	}
 
 	/*
 	 * Components
 	 */
-	private JLabel lblLabel = new JLabel();
-	private JLabel txtLabel = new JLabel();
-	private JLabel lblLabelChange = new JLabel();
 
 }
