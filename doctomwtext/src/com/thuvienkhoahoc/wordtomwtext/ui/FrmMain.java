@@ -5,6 +5,7 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,21 +31,15 @@ public class FrmMain extends JFrame {
 	public FrmMain() {
 		super();
 		initComponents();
+		handleEvents();
 	}
 
 	private void initComponents() {
 		this.setTitle("Wordtomwtext - By VLOS");
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		this.addWindowListener(new WindowAdapter() {
 
-			@Override
-			public void windowClosing(WindowEvent e) {
-				onWindowClosing();
-			}
-		});
-
-		String[] titles = new String[] { "Chọn tài liệu Word",
-				"Chỉnh sửa nội dung", "Tải lên" };
+		String[] titles = new String[] { "Chọn tài liệu Word > ",
+				"Chỉnh sửa nội dung > ", "Tải lên" };
 		AbstractFunctionalPanel[] panels = new AbstractFunctionalPanel[] {
 				new PnlFileChooser(), new PnlProjectEditor(), new PnlUploader() };
 
@@ -52,6 +47,9 @@ public class FrmMain extends JFrame {
 		tabLabels = new JLabel[titles.length];
 		for (int i = 0; i < titles.length; i++) {
 			tabLabels[i] = new JLabel(titles[i]);
+			tabLabels[i].setFont(new Font("Times New Roman", Font.BOLD
+					| Font.ITALIC, 14));
+			tabLabels[i].setForeground(Color.LIGHT_GRAY);
 			pnlTabRun.add(tabLabels[i]);
 		}
 
@@ -77,14 +75,6 @@ public class FrmMain extends JFrame {
 		lblSignIn.setText(" (đăng nhập lại)");
 		lblSignIn.setForeground(Color.BLUE);
 		lblSignIn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		lblSignIn.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (e.getButton() == MouseEvent.BUTTON1) {
-					onRelogin();
-				}
-			}
-		});
 		pnlToolbar.add(lblSignIn);
 
 		getContentPane().add(pnlToolbar, BorderLayout.NORTH);
@@ -96,21 +86,9 @@ public class FrmMain extends JFrame {
 		pnlButton.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
 
 		btnBack.setText("Quay lại");
-		btnBack.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				onBack();
-			}
-		});
 		pnlButton.add(btnBack);
 
 		btnNext.setText("Tiếp tục");
-		btnNext.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				onNext();
-			}
-		});
 		pnlButton.add(btnNext);
 
 		getContentPane().add(pnlButton, BorderLayout.SOUTH);
@@ -118,11 +96,41 @@ public class FrmMain extends JFrame {
 		pack();
 	}
 
+	private void handleEvents() {
+		this.addWindowListener(new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				onWindowClosing();
+			}
+		});
+		lblSignIn.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getButton() == MouseEvent.BUTTON1) {
+					onRelogin();
+				}
+			}
+		});
+		btnBack.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				onBack();
+			}
+		});
+		btnNext.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				onNext();
+			}
+		});
+	}
+
 	protected void onWindowClosing() {
 		if (JOptionPane
 				.showConfirmDialog(
 						this,
-						"Mọi tài liệu bạn đang soạn thảo (nếu có) sẽ bị mất. Bạn có chắc muốn thoát khỏi chương trình?",
+						"Mọi tác vụ bạn đang thực hiện sẽ hủy. Bạn có chắc muốn thoát khỏi chương trình?",
 						"Xác nhận đóng chương trình", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			Application.getInstance().exit(0);
 		}
@@ -142,6 +150,8 @@ public class FrmMain extends JFrame {
 
 	private void setSelectedIndex(int selectedIndex, boolean surpressLoad,
 			Object data) {
+		tabLabels[this.selectedIndex].setForeground(Color.LIGHT_GRAY);
+		tabLabels[selectedIndex].setForeground(Color.BLACK);
 		this.selectedIndex = selectedIndex;
 		if (!surpressLoad) {
 			tabPanels[selectedIndex].load(data);

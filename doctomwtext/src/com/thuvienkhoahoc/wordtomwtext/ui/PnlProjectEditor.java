@@ -1,6 +1,7 @@
 package com.thuvienkhoahoc.wordtomwtext.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -283,7 +284,13 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 
 	@Override
 	public boolean next() {
-		return false;
+		for (int i = 0; i < pnlMain.getTabCount(); i++) {
+			PnlEditor editor = (PnlEditor) pnlMain.getComponentAt(i);
+			if (!ensureSaved(editor)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override
@@ -381,6 +388,14 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 
 	private boolean closeEditorTab(int index) {
 		PnlEditor editor = (PnlEditor) pnlMain.getComponentAt(index);
+		if (!ensureSaved(editor)) {
+			return false;
+		}
+		pnlMain.remove(index);
+		return true;
+	}
+
+	private boolean ensureSaved(PnlEditor editor) {
 		if (editor.isDirty()) {
 			int choice = JOptionPane.showConfirmDialog(this,
 					"Bạn có muốn lưu những thay đổi vừa thực hiện không?",
@@ -393,7 +408,6 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 				editor.save();
 			}
 		}
-		pnlMain.remove(index);
 		return true;
 	}
 

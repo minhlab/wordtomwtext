@@ -55,11 +55,11 @@ public class PnlUploader extends AbstractFunctionalPanel {
 		done = false;
 		Uploader uploader = new Uploader();
 		uploader.addPropertyChangeListener(new PropertyChangeListener() {
-			
+
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				if ("progress".equals(evt.getPropertyName())) {
-					barProgress.setValue((Integer)evt.getNewValue());
+					barProgress.setValue((Integer) evt.getNewValue());
 				}
 			}
 		});
@@ -129,17 +129,16 @@ public class PnlUploader extends AbstractFunctionalPanel {
 						JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
-			
+
 			counter = 0;
-			total = project.getPages().size()
-			+ project.getImages().size();
+			total = project.getPages().size() + project.getImages().size();
 
 			publish("Tải lên " + Application.getInstance().getSitename()
 					+ "...\n");
-		
+
 			for (Page page : project.getPages()) {
 				publish("\t" + page.getLabel() + "... ");
-		
+
 				try {
 					Application.getInstance().getBot().writeContent(page);
 					publish("OK\n");
@@ -148,13 +147,13 @@ public class PnlUploader extends AbstractFunctionalPanel {
 					publish("LỖI: " + ex.getMessage() + "\n");
 					ex.printStackTrace();
 				}
-		
+
 				setProgress(++counter * 100 / total);
 			}
-		
+
 			for (Image image : project.getImages()) {
 				publish("\t" + image.getLabel() + "... ");
-		
+
 				try {
 					Application.getInstance().getBot().uploadFile(image);
 					publish("OK\n");
@@ -163,17 +162,16 @@ public class PnlUploader extends AbstractFunctionalPanel {
 					publish("LỖI: " + ex.getMessage() + "\n");
 					ex.printStackTrace();
 				}
-		
+
 				setProgress(++counter * 100 / total);
 			}
 
 			if (!error) {
 				JOptionPane.showMessageDialog(PnlUploader.this,
-						"Xin chúc mừng!",
 						"Toàn bộ bài viết và hình ảnh của bạn đã được tải thành công lên "
 								+ Application.getInstance().getSitename()
 								+ ". Cảm ơn bạn đã đóng góp!",
-						JOptionPane.INFORMATION_MESSAGE);
+						"Xin chúc mừng!", JOptionPane.INFORMATION_MESSAGE);
 			} else {
 				JOptionPane
 						.showMessageDialog(
