@@ -59,7 +59,6 @@ public class DlgLogin extends JDialog {
 				new GridBagConstraints(0, 1, 1, 1, 0, 0,
 						GridBagConstraints.EAST, GridBagConstraints.NONE,
 						new Insets(0, 5, 0, 3), 0, 0));
-		// TODO remove default user
 		getContentPane().add(
 				txtUsername,
 				new GridBagConstraints(1, 1, 1, 1, 1.0, 0,
@@ -72,7 +71,6 @@ public class DlgLogin extends JDialog {
 				new GridBagConstraints(0, 2, 1, 1, 0, 0,
 						GridBagConstraints.EAST, GridBagConstraints.NONE,
 						new Insets(0, 5, 0, 3), 0, 0));
-		// TODO remove password
 		getContentPane().add(
 				txtPassword,
 				new GridBagConstraints(1, 2, 1, 1, 1.0, 0,

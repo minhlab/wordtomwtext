@@ -51,7 +51,7 @@ public class Converter {
 	public static final String MS_RIGHT = "phải";
 	public static final String MS_CAPTION = "Hình minh họa";
 	public static final String SPACE = " ";
-	public static final String DIR_NAME = "thuvienkhoahoc.com";
+	public static final String DIR_NAME = System.getProperty("java.io.tmpdir");
 	public static final String TAG_HEADER[] = {"","=","==","===","====","=====","======","=======","========","========="};
 	/*
 	*  Các biến toàn cục trong lớp
@@ -66,7 +66,7 @@ public class Converter {
 	* Chỉ viết phần main name, còn extension name thì đã cộng ở dưới
 	* Chúng ta làm vậy, vì biến này còn dùng để đặt tên cho file ảnh nếu có
 	*/
-	String nameInput = "A 9584   Huong dan nam hoc 2007-2008 7 9 2007";
+	String nameInput = "abc";
 	/*
 	* Dùng một chuỗi kí tự để tạo mã list {#, *} cho kiểu danh sách
 	*/
@@ -272,7 +272,7 @@ public class Converter {
 		Picture pic = picTable.extractPicture(run,false);
 		if (pic.suggestFileExtension().length() > 0){
 			String namePic = nameInput+"-"+pic.suggestFullFileName();
-			String filename = DIR_NAME+"\\"+namePic;
+			String filename = DIR_NAME + namePic;
 			OutputStream outPic = new FileOutputStream(filename);
 			Image newImage = new Image(namePic, filename);
 			setDefaultValues(newImage);

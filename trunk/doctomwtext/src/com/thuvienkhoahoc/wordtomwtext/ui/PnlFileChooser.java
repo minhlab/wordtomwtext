@@ -66,7 +66,7 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 
 	private void handleEvents() {
 		realChooser.addActionListener(new ActionListener() {
-			
+
 			public void actionPerformed(ActionEvent e) {
 				if (JFileChooser.APPROVE_SELECTION.equals(e.getActionCommand())) {
 					addSelectedFiles();
@@ -74,7 +74,7 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 			}
 		});
 		btnAdd.addActionListener(new ActionListener() {
-			
+
 			public void actionPerformed(ActionEvent e) {
 				addSelectedFiles();
 			}
@@ -121,10 +121,12 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 		}
 		try {
 			project = converter.convert(modFiles.getFileList());
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(this,
-					"Xin hãy kiểm tra lại những tệp được chọn.",
+		} catch (IOException ex) {
+			JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: "
+					+ ex.getMessage()
+					+ ". Xin hãy kiểm tra lại những tệp được chọn.",
 					"Có lỗi khi đọc tệp", JOptionPane.ERROR_MESSAGE);
+			ex.printStackTrace();
 			return false;
 		}
 		return true;

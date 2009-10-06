@@ -26,7 +26,7 @@ public class FileTableModel extends AbstractTableModel {
 	public List<File> getFileList() {
 		return fileList;
 	}
-	
+
 	/**
 	 * @param e
 	 * @return
@@ -61,10 +61,12 @@ public class FileTableModel extends AbstractTableModel {
 	 * @return
 	 * @see java.util.List#remove(java.lang.Object)
 	 */
-	public boolean remove(Object o) {
-		boolean ret = fileList.remove(o);
-		fireTableDataChanged();
-		return ret;
+	public boolean remove(int index) {
+		File removed = fileList.remove(index);
+		if (removed != null) {
+			fireTableDataChanged();
+		}
+		return removed != null;
 	}
 
 	@Override
@@ -77,7 +79,7 @@ public class FileTableModel extends AbstractTableModel {
 		}
 		return super.getColumnName(column);
 	}
-	
+
 	public int getColumnCount() {
 		return 2;
 	}
