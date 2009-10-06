@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.jwbf.contentRep.mw.SimpleArticle;
+
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.model.PicturesTable;
 import org.apache.poi.hwpf.model.StyleDescription;
@@ -272,7 +274,9 @@ public class Converter {
 			String namePic = nameInput+"-"+pic.suggestFullFileName();
 			String filename = DIR_NAME+"\\"+namePic;
 			OutputStream outPic = new FileOutputStream(filename);
-			currentProject.addImage(new Image(namePic, filename));
+			Image newImage = new Image(namePic, filename);
+			setDefaultValues(newImage);
+			currentProject.addImage(newImage);
 			pic.writeImageContent(outPic);
 			textR += "[["+MS_IMAGE+":"+namePic+"|"+MS_CENTER+"|150px|"+MS_CAPTION+"]]";
 		}
@@ -582,6 +586,7 @@ public class Converter {
 	*/ 
 	public void convertAndExtractImages(File wordFile) throws IOException {
 		currentPage = new Page("Bài viết " + (pageCounter++));
+		setDefaultValues(currentPage);
 
 		StringWriter _out = new StringWriter();
 		Range range = null; 
@@ -635,5 +640,10 @@ public class Converter {
 		
 		currentPage.setText(_out.toString());
 	}//END wordtomwtext
+	
+	private void setDefaultValues(SimpleArticle article) {
+		article.setEditSummary("chuyển đổi bởi wordtomwtext");
+		article.setMinorEdit(false);
+	}
 	
 }

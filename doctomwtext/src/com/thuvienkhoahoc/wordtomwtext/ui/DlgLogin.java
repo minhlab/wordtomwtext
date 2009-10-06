@@ -28,6 +28,7 @@ public class DlgLogin extends JDialog {
 	public DlgLogin(JFrame parent) {
 		super(parent);
 		initComponents();
+		handleEvents();
 	}
 
 	private void initComponents() {
@@ -82,21 +83,9 @@ public class DlgLogin extends JDialog {
 
 		getRootPane().setDefaultButton(btnOk);
 		btnOk.setText("Đăng nhập");
-		btnOk.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent arg0) {
-				onLogin();
-			}
-		});
 		pnlButton.add(btnOk);
 
-		btnCancel.setText("Thoát");
-		btnCancel.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				onCancel();
-			}
-		});
+		btnCancel.setText("Thôi");
 		pnlButton.add(btnCancel);
 
 		getContentPane().add(
@@ -108,8 +97,19 @@ public class DlgLogin extends JDialog {
 		pack();
 	}
 
-	protected void onCancel() {
-		setVisible(false);
+	private void handleEvents() {
+		btnOk.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent arg0) {
+				onLogin();
+			}
+		});
+		btnCancel.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				onCancel();
+			}
+		});
 	}
 
 	protected void onLogin() {
@@ -130,6 +130,10 @@ public class DlgLogin extends JDialog {
 			txtUsername.selectAll();
 			txtUsername.requestFocusInWindow();
 		}
+	}
+
+	protected void onCancel() {
+		setVisible(false);
 	}
 
 	private GridBagLayout layoutMain = new GridBagLayout();

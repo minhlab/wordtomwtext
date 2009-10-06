@@ -22,28 +22,32 @@ public class PnlPageEditor extends PnlEditor {
 	public PnlPageEditor(final JTabbedPane tabbedPane, Page page) {
 		super(page);
 		this.tabbedPane = tabbedPane;
-		page.getProject().addProjectListener(new ProjectAdapter() {
-			@Override
-			public void pagePropertyChanged(ProjectEvent evt) {
-				if ("label".equals(evt.getPropertyName())) {
-					onLabelChanged();
-				}
-			}
-		});
 		initComponents();
-	}
-
-	@Override
-	public Page getObject() {
-		return (Page) super.getObject();
+		handleEvent();
 	}
 
 	private void initComponents() {
 		setLayout(new BorderLayout());
 
 		txtContent.setFont(Font.getFont("Courier 12"));
-		txtContent.setText(getObject().getText());
-		// add listener after setting text to avoid unnecessary events
+		add(new JScrollPane(txtContent), BorderLayout.CENTER);
+	}
+
+	private void handleEvent() {
+		getObject().getProject().addProjectListener(new ProjectAdapter() {
+			@Override
+			public void pagePropertyChanged(ProjectEvent evt) {
+				if (!getObject().equals(evt.getPage())) {
+					return;
+				}
+				if ("label".equals(evt.getPropertyName())) {
+					updateLabel();
+				} else if ("markedForRemoval".equals(evt.getPropertyName())) {
+					updateRemovalStatus();
+				}
+			}
+		});
+		
 		txtContent.getDocument().addDocumentListener(new DocumentListener() {
 
 			public void removeUpdate(DocumentEvent e) {
@@ -58,16 +62,21 @@ public class PnlPageEditor extends PnlEditor {
 				setDirty(true);
 			}
 		});
-		add(new JScrollPane(txtContent), BorderLayout.CENTER);
-	}
-
-	protected void onLabelChanged() {
-		updateLabel();
 	}
 
 	@Override
-	public void discard() {
+	public Page getObject() {
+		return (Page) super.getObject();
+	}
+
+	protected void updateRemovalStatus() {
+		txtContent.setEditable(!getObject().isMarkedForRemoval());
+	}
+
+	@Override
+	public void load() {
 		txtContent.setText(getObject().getText());
+		updateRemovalStatus();
 		setDirty(false);
 	}
 
@@ -83,6 +92,7 @@ public class PnlPageEditor extends PnlEditor {
 			title = "*" + title;
 		}
 		tabbedPane.setTitleAt(tabbedPane.indexOfComponent(this), title);
+		this.setName(title);
 	}
 
 }

@@ -31,6 +31,6 @@ public abstract class PnlEditor extends JPanel {
 
 	public abstract void save();
 
-	public abstract void discard();
+	public abstract void load();
 
 }
