@@ -68,9 +68,9 @@ public class Application {
 
 			public void run() {
 				if (!logedin) {
-					if (showLoginDialog()) {
+					if (!showLoginDialog()) {
 						System.out.println("Can't login, application closed.");
-						return;
+						exit(0);
 					}
 				}
 				new FrmMain().setVisible(true);

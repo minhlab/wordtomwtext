@@ -16,7 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.thuvienkhoahoc.wordtomwtext.data.Project;
 import com.thuvienkhoahoc.wordtomwtext.logic.Converter;
@@ -28,31 +28,15 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 	private Converter converter = new Converter();
 
 	public PnlFileChooser() {
-		setLayout(layout);
+		initComponents();
+		handleEvents();
+	}
 
-		realChooser.setFileFilter(new FileFilter() {
+	private void initComponents() {
+		setLayout(new BorderLayout());
 
-			@Override
-			public String getDescription() {
-				return "Tài liệu Microsoft Word 97/2000";
-			}
-
-			@Override
-			public boolean accept(File f) {
-				if (f.isDirectory()) {
-					return true;
-				}
-				return f.getName().endsWith(".doc");
-			}
-		});
-		realChooser.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				if (JFileChooser.APPROVE_SELECTION.equals(e.getActionCommand())) {
-					onAddFile();
-				}
-			}
-		});
+		realChooser.setFileFilter(new FileNameExtensionFilter(
+				"Tài liệu Microsoft Word 97/2000", "doc"));
 		realChooser.setControlButtonsAreShown(false);
 		realChooser.setMultiSelectionEnabled(true);
 		add(realChooser, BorderLayout.CENTER);
@@ -60,23 +44,11 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 		pnlFiles.setLayout(new GridBagLayout());
 
 		btnAdd.setText("Thêm");
-		btnAdd.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				onAddFile();
-			}
-		});
 		pnlFiles.add(btnAdd, new GridBagConstraints(0, 0, 1, 1, 0, 0,
 				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5,
 						3, 0, 0), 0, 0));
 
 		btnRemove.setText("Bớt");
-		btnRemove.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				onRemoveFile();
-			}
-		});
 		pnlFiles.add(btnRemove, new GridBagConstraints(1, 0, 1, 1, 0, 0,
 				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5,
 						2, 0, 5), 0, 0));
@@ -92,20 +64,43 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 		add(pnlFiles, BorderLayout.EAST);
 	}
 
-	protected void onRemoveFile() {
-		int[] selectedRows = tblFiles.getSelectedRows();
-		Arrays.sort(selectedRows); // make sure that it is sorted ascendingly
-		for (int i = selectedRows.length - 1; i >= 0; i--) {
-			modFiles.remove(selectedRows[i]);
-		}
+	private void handleEvents() {
+		realChooser.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				if (JFileChooser.APPROVE_SELECTION.equals(e.getActionCommand())) {
+					addSelectedFiles();
+				}
+			}
+		});
+		btnAdd.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				addSelectedFiles();
+			}
+		});
+		btnRemove.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				removeSelectedFiles();
+			}
+		});
 	}
 
-	protected void onAddFile() {
+	protected void addSelectedFiles() {
 		File[] selectedFiles = realChooser.getSelectedFiles();
 		for (int i = 0; i < selectedFiles.length; i++) {
 			if (!modFiles.contains(selectedFiles[i])) {
 				modFiles.add(selectedFiles[i]);
 			}
+		}
+	}
+
+	protected void removeSelectedFiles() {
+		int[] selectedRows = tblFiles.getSelectedRows();
+		Arrays.sort(selectedRows); // make sure that it is sorted ascendingly
+		for (int i = selectedRows.length - 1; i >= 0; i--) {
+			modFiles.remove(selectedRows[i]);
 		}
 	}
 
@@ -143,7 +138,6 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 	/*
 	 * Components
 	 */
-	private BorderLayout layout = new BorderLayout();
 	private JFileChooser realChooser = new JFileChooser();
 	private JTable tblFiles = new JTable();
 	private JPanel pnlFiles = new JPanel();

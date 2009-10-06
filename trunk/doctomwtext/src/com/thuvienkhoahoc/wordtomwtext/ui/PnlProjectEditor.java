@@ -15,6 +15,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
@@ -30,16 +31,61 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 
 	public PnlProjectEditor() {
 		initComponents();
+		handleEvents();
 	}
 
 	private void initComponents() {
 		this.setLayout(new BorderLayout());
+
+		pnlWrapper.setDividerLocation(200);
+		this.add(pnlWrapper, BorderLayout.CENTER);
 
 		treeProject.setBorder(BorderFactory.createEtchedBorder());
 		treeProject.setModel(modProject);
 		treeProject.setCellRenderer(new ProjectTreeCellRenderer());
 		treeProject.setCellEditor(new ProjectTreeCellEditor(treeProject));
 		treeProject.setEditable(true);
+		JScrollPane scrProject = new JScrollPane(treeProject);
+		scrProject.setPreferredSize(new Dimension(280, 600));
+		pnlWrapper.setLeftComponent(scrProject);
+
+		pnlMain.setPreferredSize(new Dimension(700, 600));
+		pnlMain.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
+		pnlWrapper.setRightComponent(pnlMain);
+
+		miSave.setText("Lưu");
+		popupEditor.add(miSave);
+
+		miDiscard.setText("Hủy bỏ");
+		popupEditor.add(miDiscard);
+
+		popupEditor.addSeparator();
+
+		miClose.setText("Đóng");
+		popupEditor.add(miClose);
+
+		miCloseAll.setText("Đóng tất cả");
+		popupEditor.add(miCloseAll);
+
+		miCloseOthers.setText("Đóng các mục khác");
+		popupEditor.add(miCloseOthers);
+
+		miCreatePage.setText("Trang mới");
+		popupTree.add(miCreatePage);
+
+		popupTree.addSeparator();
+
+		miCreateSubpage.setText("Trang con mới");
+		popupTree.add(miCreateSubpage);
+
+		miRename.setText("Đổi tên");
+		popupTree.add(miRename);
+
+		miRemove.setText("Đánh dấu xóa");
+		popupTree.add(miRemove);
+	}
+
+	private void handleEvents() {
 		treeProject.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -77,10 +123,12 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 								.getLastPathComponent();
 						if (lastComponent instanceof Page) {
 							pageBasedActionEnabled = articleBasedActionEnabled = true;
-							miRemove.setSelected(((Page) lastComponent).isMarkedForRemoval());
+							miRemove.setSelected(((Page) lastComponent)
+									.isMarkedForRemoval());
 						} else if (lastComponent instanceof Image) {
 							articleBasedActionEnabled = true;
-							miRemove.setSelected(((Image) lastComponent).isMarkedForRemoval());
+							miRemove.setSelected(((Image) lastComponent)
+									.isMarkedForRemoval());
 						}
 					}
 					miRename.setEnabled(articleBasedActionEnabled);
@@ -102,9 +150,6 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 				super.keyPressed(e);
 			}
 		});
-		JScrollPane scrProject = new JScrollPane(treeProject);
-		scrProject.setPreferredSize(new Dimension(280, 600));
-		add(scrProject, BorderLayout.WEST);
 
 		pnlMain.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
@@ -132,63 +177,43 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 				}
 			}
 		});
-		pnlMain.setPreferredSize(new Dimension(700, 600));
-		pnlMain.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
-		add(pnlMain, BorderLayout.CENTER);
 
-		miSave.setText("Lưu");
 		miSave.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				onSave();
+				saveSelectedEditor();
 			}
 		});
-		popupEditor.add(miSave);
 
-		miDiscard.setText("Hủy bỏ");
 		miDiscard.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				onDiscard();
+				discardSelectedEditor();
 			}
 		});
-		popupEditor.add(miDiscard);
-
-		popupEditor.addSeparator();
-
-		miClose.setText("Đóng");
 		miClose.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				onClose();
+				closeSelectedEditor();
 			}
 		});
-		popupEditor.add(miClose);
-
-		miCloseAll.setText("Đóng tất cả");
 		miCloseAll.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				onCloseAll();
+				closeAllEditors();
 			}
 		});
-		popupEditor.add(miCloseAll);
-
-		miCloseOthers.setText("Đóng các mục khác");
 		miCloseOthers.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				onCloseOthers();
+				closeOtherEditors();
 			}
 		});
-		popupEditor.add(miCloseOthers);
-
-		miCreatePage.setText("Trang mới");
 		miCreatePage.addActionListener(new ActionListener() {
 
 			@Override
@@ -196,11 +221,6 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 				createPage();
 			}
 		});
-		popupTree.add(miCreatePage);
-
-		popupTree.addSeparator();
-
-		miCreateSubpage.setText("Trang con mới");
 		miCreateSubpage.addActionListener(new ActionListener() {
 
 			@Override
@@ -208,9 +228,6 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 				createSubpage();
 			}
 		});
-		popupTree.add(miCreateSubpage);
-
-		miRename.setText("Đổi tên");
 		miRename.addActionListener(new ActionListener() {
 
 			@Override
@@ -218,9 +235,6 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 				renameSelectedAritcle();
 			}
 		});
-		popupTree.add(miRename);
-
-		miRemove.setText("Đánh dấu xóa");
 		miRemove.addActionListener(new ActionListener() {
 
 			@Override
@@ -228,7 +242,6 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 				toggleMarkedForRemoval();
 			}
 		});
-		popupTree.add(miRemove);
 	}
 
 	@Override
@@ -263,6 +276,7 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 		}
 		if (editor != null) {
 			pnlMain.addTab(label, editor);
+			editor.load();
 			pnlMain.setSelectedIndex(pnlMain.getTabCount() - 1);
 		}
 	}
@@ -328,23 +342,21 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 		treeProject.startEditingAtPath(treeProject.getSelectionPath());
 	}
 
-	private void onSave() {
-		PnlPageEditor pageEditor = (PnlPageEditor) pnlMain
-				.getSelectedComponent();
-		if (pageEditor != null) {
-			pageEditor.save();
+	private void saveSelectedEditor() {
+		PnlEditor editor = (PnlEditor) pnlMain.getSelectedComponent();
+		if (editor != null) {
+			editor.save();
 		}
 	}
 
-	private void onDiscard() {
-		PnlPageEditor pageEditor = (PnlPageEditor) pnlMain
-				.getSelectedComponent();
-		if (pageEditor != null) {
-			pageEditor.discard();
+	private void discardSelectedEditor() {
+		PnlEditor editor = (PnlEditor) pnlMain.getSelectedComponent();
+		if (editor != null) {
+			editor.load();
 		}
 	}
 
-	private void onCloseOthers() {
+	private void closeOtherEditors() {
 		int selectedIndex = pnlMain.getSelectedIndex();
 		for (int i = pnlMain.getTabCount() - 1; i >= 0; i--) {
 			if (i != selectedIndex) {
@@ -355,7 +367,7 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 		}
 	}
 
-	private void onCloseAll() {
+	private void closeAllEditors() {
 		for (int i = pnlMain.getTabCount() - 1; i >= 0; i--) {
 			if (!closeEditorTab(i)) {
 				break;
@@ -363,20 +375,22 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 		}
 	}
 
-	private void onClose() {
+	private void closeSelectedEditor() {
 		closeEditorTab(pnlMain.getSelectedIndex());
 	}
 
 	private boolean closeEditorTab(int index) {
-		if (((PnlEditor) pnlMain.getComponentAt(index)).isDirty()) {
+		PnlEditor editor = (PnlEditor) pnlMain.getComponentAt(index);
+		if (editor.isDirty()) {
 			int choice = JOptionPane.showConfirmDialog(this,
 					"Bạn có muốn lưu những thay đổi vừa thực hiện không?",
-					"Bài viết chưa được lưu", JOptionPane.YES_NO_CANCEL_OPTION);
+					"Bài viết \"" + editor.getName() + "\" chưa được lưu",
+					JOptionPane.YES_NO_CANCEL_OPTION);
 			if (choice == JOptionPane.CANCEL_OPTION) {
 				return false;
 			}
 			if (choice == JOptionPane.YES_OPTION) {
-				((PnlEditor) pnlMain.getComponentAt(index)).save();
+				editor.save();
 			}
 		}
 		pnlMain.remove(index);
@@ -386,6 +400,7 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 	/*
 	 * Components
 	 */
+	private JSplitPane pnlWrapper = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 	private JTabbedPane pnlMain = new JTabbedPane();
 	private JTree treeProject = new JTree();
 	private ProjectTreeModel modProject = new ProjectTreeModel();
