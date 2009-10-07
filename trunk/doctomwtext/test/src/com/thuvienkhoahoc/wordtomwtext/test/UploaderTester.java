@@ -25,7 +25,7 @@ public class UploaderTester extends JFrame {
 	public static void main(String[] args) throws IOException, ActionException {
 		// prepare data
 		Application.getInstance().login("http://thuvienkhoahoc.com/w14/",
-				"Cumeo89", "thobong37");
+				"Tester2", "1234a");
 		
 		Project project = new Project();
 		long id = System.currentTimeMillis();
