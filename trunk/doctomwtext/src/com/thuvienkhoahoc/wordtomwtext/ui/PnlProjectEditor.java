@@ -1,7 +1,6 @@
 package com.thuvienkhoahoc.wordtomwtext.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -409,6 +408,14 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public boolean canClose() {
+		return JOptionPane.showConfirmDialog(this,
+				"Các bài viết bạn đang soạn sẽ bị hủy. "
+						+ "Bạn có chắc muốn thoát khỏi chương trình?",
+				"Xác nhận đóng chương trình", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
 	}
 
 	/*

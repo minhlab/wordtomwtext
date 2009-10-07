@@ -137,6 +137,17 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 		return project;
 	}
 
+	@Override
+	public boolean canClose() {
+		if (modFiles.getRowCount() <= 0) {
+			return true;
+		}
+		return JOptionPane.showConfirmDialog(this,
+				"Các lựa chọn của bạn sẽ bị hủy. "
+						+ "Bạn có chắc muốn thoát khỏi chương trình?",
+				"Xác nhận đóng chương trình", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
+	}
+	
 	/*
 	 * Components
 	 */

@@ -1,15 +1,16 @@
 package com.thuvienkhoahoc.wordtomwtext.ui;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 
@@ -23,7 +24,6 @@ import com.thuvienkhoahoc.wordtomwtext.data.Project;
 @SuppressWarnings("serial")
 public class PnlUploader extends AbstractFunctionalPanel {
 
-	private boolean done;
 	private Project project;
 
 	public PnlUploader() {
@@ -31,17 +31,21 @@ public class PnlUploader extends AbstractFunctionalPanel {
 	}
 
 	private void initComponents() {
-		setLayout(new BorderLayout());
+		this.setLayout(new BorderLayout());
 
-		txtMessage.setEditable(false);
-		add(txtMessage, BorderLayout.CENTER);
+		BorderLayout layProgress = new BorderLayout();
+		layProgress.setHgap(5);
 
 		pnlProgress.setBorder(BorderFactory.createEmptyBorder(3, 5, 5, 5));
-		pnlProgress.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		pnlProgress.setLayout(layProgress);
 
-		pnlProgress.add(barProgress);
+		pnlProgress.add(barProgress, BorderLayout.CENTER);
+		pnlProgress.add(lblProgress, BorderLayout.EAST);
 
-		add(pnlProgress, BorderLayout.SOUTH);
+		add(pnlProgress, BorderLayout.NORTH);
+
+		txtMessage.setEditable(false);
+		add(new JScrollPane(txtMessage), BorderLayout.CENTER);
 	}
 
 	private void appendMessage(String msg) {
@@ -52,42 +56,48 @@ public class PnlUploader extends AbstractFunctionalPanel {
 	@Override
 	public void load(Object obj) {
 		this.project = (Project) obj;
-		done = false;
-		Uploader uploader = new Uploader();
-		uploader.addPropertyChangeListener(new PropertyChangeListener() {
-
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				if ("progress".equals(evt.getPropertyName())) {
-					barProgress.setValue((Integer) evt.getNewValue());
-				}
-			}
-		});
-		uploader.execute();
+		setState(STATE_RUNNING);
 		txtMessage.setText("");
+		new Uploader().execute();
 	}
 
 	@Override
-	public boolean next() {
-		return done;
+	public Project getResult() {
+		return project;
 	}
 
 	@Override
-	public Void getResult() {
-		return null;
+	public boolean canClose() {
+		if (getState() == STATE_RUNNING) {
+			return false;
+		}
+		if (getState() == STATE_FINISHED) {
+			return true;
+		}
+		return JOptionPane
+				.showConfirmDialog(
+						this,
+						"Dữ liệu của bạn chưa được tải lên hoàn toàn và sẽ biến mất "
+								+ "nếu chương trình bị đóng. Bạn có chắc chắn muốn đóng chương trình?",
+						"Xác nhận đóng chương trình",
+						JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
 	}
 
 	/*
 	 * Workers
 	 */
-	private class Uploader extends SwingWorker<Void, String> {
+	private class Uploader extends SwingWorker<Boolean, String> implements
+			PropertyChangeListener {
 
-		private boolean conflict = false, error = false;
+		public Uploader() {
+			this.addPropertyChangeListener(this);
+		}
 
 		@Override
-		protected Void doInBackground() throws Exception {
-			int counter = 0, total = project.getPages().size()
-					+ project.getImages().size();
+		protected Boolean doInBackground() throws Exception {
+			boolean error = false;
+			int counter = 0, total = (project.getPages().size() + project
+					.getImages().size()) * 2;
 			publish("Kiểm tra tên bài viết và ảnh...\n");
 
 			for (Page page : project.getPages()) {
@@ -99,7 +109,7 @@ public class PnlUploader extends AbstractFunctionalPanel {
 					publish("OK\n");
 				} else {
 					publish("TRÙNG TÊN!\n");
-					conflict = true;
+					error = true;
 				}
 
 				setProgress(++counter * 100 / total);
@@ -114,24 +124,21 @@ public class PnlUploader extends AbstractFunctionalPanel {
 					publish("OK\n");
 				} else {
 					publish("TRÙNG TÊN!\n");
-					conflict = true;
+					error = true;
 				}
 
 				setProgress(++counter * 100 / total);
 			}
 
-			if (conflict) {
+			if (error) {
 				JOptionPane.showMessageDialog(PnlUploader.this,
 						"Bài viết bị trùng tên",
 						"Bài viết của bạn trùng tên với bài trên "
 								+ Application.getInstance().getSitename()
 								+ ". Xin hãy sửa lại tên bài viết.",
 						JOptionPane.ERROR_MESSAGE);
-				return null;
+				return false;
 			}
-
-			counter = 0;
-			total = project.getPages().size() + project.getImages().size();
 
 			publish("Tải lên " + Application.getInstance().getSitename()
 					+ "...\n");
@@ -166,28 +173,43 @@ public class PnlUploader extends AbstractFunctionalPanel {
 				setProgress(++counter * 100 / total);
 			}
 
-			if (!error) {
-				JOptionPane.showMessageDialog(PnlUploader.this,
-						"Toàn bộ bài viết và hình ảnh của bạn đã được tải thành công lên "
-								+ Application.getInstance().getSitename()
-								+ ". Cảm ơn bạn đã đóng góp!",
-						"Xin chúc mừng!", JOptionPane.INFORMATION_MESSAGE);
-			} else {
+			if (error) {
 				JOptionPane
 						.showMessageDialog(
 								PnlUploader.this,
 								"Có lỗi khi tải lên",
 								"Chương trình gặp lỗi khi tải lên bài viết và/hoặc hình ảnh của bạn. Hãy kiểm tra lại và tải lên bằng tay nếu cần.",
 								JOptionPane.ERROR_MESSAGE);
+				return false;
 			}
 
-			return null;
+			publish("Xin chúc mừng! Toàn bộ bài viết và hình ảnh của bạn đã được tải thành công lên "
+					+ Application.getInstance().getSitename()
+					+ ". Cảm ơn bạn đã đóng góp!");
+			return true;
 		}
 
 		@Override
 		protected void process(List<String> chunks) {
 			for (String chunk : chunks) {
 				appendMessage(chunk);
+			}
+		}
+
+		@Override
+		protected void done() {
+			try {
+				setState(get() ? STATE_FINISHED : STATE_ERROR);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			if ("progress".equals(evt.getPropertyName())) {
+				barProgress.setValue((Integer) evt.getNewValue());
+				lblProgress.setText(evt.getNewValue() + "%");
 			}
 		}
 
@@ -198,6 +220,7 @@ public class PnlUploader extends AbstractFunctionalPanel {
 	 */
 	private JTextArea txtMessage = new JTextArea();
 	private JProgressBar barProgress = new JProgressBar();
+	private JLabel lblProgress = new JLabel();
 	private JPanel pnlProgress = new JPanel();
 
 }

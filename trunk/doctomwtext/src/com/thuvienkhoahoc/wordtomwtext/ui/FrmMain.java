@@ -13,6 +13,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -20,7 +22,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.thuvienkhoahoc.wordtomwtext.Application;
@@ -32,16 +33,19 @@ public class FrmMain extends JFrame {
 		super();
 		initComponents();
 		handleEvents();
+		setSelectedIndex(0, false, null);
+		updateUsernameField();
 	}
 
 	private void initComponents() {
 		this.setTitle("Wordtomwtext - By VLOS");
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-		String[] titles = new String[] { "Chọn tài liệu Word > ",
-				"Chỉnh sửa nội dung > ", "Tải lên" };
-		AbstractFunctionalPanel[] panels = new AbstractFunctionalPanel[] {
-				new PnlFileChooser(), new PnlProjectEditor(), new PnlUploader() };
+		final String[] titles = new String[] { "Chọn tài liệu Word > ",
+				"Chỉnh sửa nội dung > ", "Tải lên > ", "Kết thúc" };
+		final AbstractFunctionalPanel[] panels = new AbstractFunctionalPanel[] {
+				new PnlFileChooser(), new PnlProjectEditor(),
+				new PnlUploader(), new PnlFinished() };
 
 		pnlTabRun.setLayout(layoutTabRun);
 		tabLabels = new JLabel[titles.length];
@@ -59,17 +63,12 @@ public class FrmMain extends JFrame {
 			pnlMainWrapper.add(panels[i], titles[i]);
 		}
 
-		setSelectedIndex(0, false, null);
-
 		pnlToolbar.setLayout(new BoxLayout(pnlToolbar, BoxLayout.LINE_AXIS));
 
 		pnlToolbar.add(pnlTabRun);
 
 		pnlToolbar.add(Box.createHorizontalGlue());
 
-		lblUsername.setText(Application.getInstance().getUsername());
-		lblUsername.setToolTipText("tại "
-				+ Application.getInstance().getSitename());
 		pnlToolbar.add(lblUsername);
 
 		lblSignIn.setText(" (đăng nhập lại)");
@@ -124,28 +123,43 @@ public class FrmMain extends JFrame {
 				onNext();
 			}
 		});
+		PropertyChangeListener tabPropertyChangeListener = new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (evt.getSource() == getSelectedTab()) {
+					if ("state".equals(evt.getPropertyName())) {
+						updateState();
+					}
+				}
+			}
+		};
+		for (int i = 0; i < tabPanels.length; i++) {
+			tabPanels[i].addPropertyChangeListener(tabPropertyChangeListener);
+		}
 	}
 
 	protected void onWindowClosing() {
-		if (JOptionPane
-				.showConfirmDialog(
-						this,
-						"Mọi tác vụ bạn đang thực hiện sẽ hủy. Bạn có chắc muốn thoát khỏi chương trình?",
-						"Xác nhận đóng chương trình", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+		if (getSelectedTab().canClose()) {
 			Application.getInstance().exit(0);
 		}
 	}
 
 	protected void onNext() {
-		if (!tabPanels[selectedIndex].next()) {
-			return;
+		if (getSelectedTab().canNext() && getSelectedTab().next()) {
+			setSelectedIndex((selectedIndex + 1) % tabPanels.length, false,
+					getSelectedTab().getResult());
 		}
-		setSelectedIndex(selectedIndex + 1, false, tabPanels[selectedIndex]
-				.getResult());
 	}
 
 	protected void onBack() {
-		setSelectedIndex(selectedIndex - 1, true, null);
+		if (getSelectedTab().canBack()) {
+			setSelectedIndex(selectedIndex - 1, true, null);
+		}
+	}
+
+	private AbstractFunctionalPanel getSelectedTab() {
+		return tabPanels[selectedIndex];
 	}
 
 	private void setSelectedIndex(int selectedIndex, boolean surpressLoad,
@@ -158,25 +172,31 @@ public class FrmMain extends JFrame {
 		}
 		layoutMainWrapper.show(pnlMainWrapper, tabLabels[selectedIndex]
 				.getText());
-		btnBack.setEnabled(selectedIndex > 0);
-		btnNext.setEnabled(selectedIndex < tabLabels.length - 1);
-		if (selectedIndex == tabLabels.length - 1) {
-			btnNext.setText("Kết thúc");
-		} else {
-			btnNext.setText("Tiếp tục");
-		}
+		updateState();
 	}
 
 	protected void onRelogin() {
+		if (!getSelectedTab().canClose()) {
+			return;
+		}
 		setVisible(false);
 		Application.getInstance().logout();
 		if (!Application.getInstance().showLoginDialog()) {
 			Application.getInstance().exit(0);
 		}
-		lblUsername.setText(Application.getInstance().getUsername());
-		lblUsername.setToolTipText("tại "
-				+ Application.getInstance().getSitename());
+		updateUsernameField();
 		setVisible(true);
+	}
+
+	private void updateState() {
+		btnBack.setEnabled(getSelectedTab().canBack());
+		btnNext.setEnabled(getSelectedTab().canNext());
+	}
+
+	private void updateUsernameField() {
+		lblUsername.setText(Application.getInstance().getUsername() + " - "
+				+ Application.getInstance().getSitename());
+		lblUsername.setToolTipText(Application.getInstance().getSiteurl());
 	}
 
 	// GUI items
