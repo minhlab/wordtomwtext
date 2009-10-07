@@ -16,6 +16,7 @@ public class Application {
 	private MediaWikiBot bot = null;
 	private String username = "";
 	private String sitename = "";
+	private String siteurl = "";
 	private boolean logedin = false;
 
 	private Application() {
@@ -27,6 +28,10 @@ public class Application {
 
 	public String getSitename() {
 		return sitename;
+	}
+	
+	public String getSiteurl() {
+		return siteurl;
 	}
 
 	public MediaWikiBot getBot() {
@@ -44,6 +49,7 @@ public class Application {
 		logedin = true;
 
 		this.username = username;
+		this.siteurl = site;
 		try {
 			sitename = bot.getSiteinfo().getSitename();
 		} catch (ActionException e) {

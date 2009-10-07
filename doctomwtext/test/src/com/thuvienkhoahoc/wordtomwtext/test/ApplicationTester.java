@@ -15,8 +15,8 @@ public class ApplicationTester {
 	 */
 	public static void main(String[] args) throws ActionException,
 			MalformedURLException {
-		Application.getInstance().login("http://thuvienkhoahoc.com/tusach/",
-				"Tester", "1234a");
+		Application.getInstance().login("http://thuvienkhoahoc.com/w14/",
+				"Cumeo89", "thobong37");
 		Application.getInstance().run();
 	}
 
