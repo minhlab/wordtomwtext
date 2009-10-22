@@ -3,6 +3,7 @@ package com.thuvienkhoahoc.wordtomwtext.data;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class Project {
 
@@ -35,15 +36,23 @@ public class Project {
 	/**
 	 * @param page
 	 * @return
+	 * @throws DuplicatedTitleException
 	 * @see java.util.List#add(java.lang.Object)
 	 */
-	public boolean addPage(Page page) {
+	public boolean addPage(Page page) throws DuplicatedTitleException {
 		if (pageList.contains(page)) {
 			return false;
 		}
-		if (page.getProject() != null) {
-			page.getProject().removePage(page);
+		if (page.hasChild()) {
+			throw new IllegalArgumentException(
+					"Không được phép thêm trang có con.");
 		}
+		if (page.getProject() != null) {
+			throw new IllegalArgumentException(
+					"Remove from current project first.");
+		}
+
+		checkPageTitle(page.getLabel(), null);
 		boolean ret = pageList.add(page);
 		if (ret) {
 			page.setProject(this);
@@ -52,24 +61,55 @@ public class Project {
 		return ret;
 	}
 
+	void checkPageTitle(String title, Page aPage)
+			throws DuplicatedTitleException {
+		for (Page root : pageList) {
+			recursiveCheckPageTitle(title, aPage, root);
+		}
+	}
+
+	private void recursiveCheckPageTitle(String title, Page aPage, Page root)
+			throws DuplicatedTitleException {
+		if (title.equals(root.getLabel()) && aPage != root) {
+			throw new DuplicatedTitleException(title);
+		}
+		for (Page child : root.getChildren()) {
+			recursiveCheckPageTitle(title, aPage, child);
+		}
+	}
+
 	/**
-	 * @param image
+	 * @param newImage
 	 * @return
+	 * @throws DuplicatedTitleException
 	 * @see java.util.List#add(java.lang.Object)
 	 */
-	public boolean addImage(Image image) {
-		boolean ret = imageList.add(image);
+	public boolean addImage(Image newImage) throws DuplicatedTitleException {
+		if (imageList.contains(newImage)) {
+			return false;
+		}
+		checkImageTitle(newImage.getLabel(), null);
+		boolean ret = imageList.add(newImage);
 		if (ret) {
-			image.setProject(this);
+			newImage.setProject(this);
 			if (listenerList.size() > 0) {
-				ProjectEvent event = new ProjectEvent(this, image, imageList
-						.indexOf(image));
+				ProjectEvent event = new ProjectEvent(this, newImage, imageList
+						.indexOf(newImage));
 				for (ProjectListener listener : listenerList) {
 					listener.imageAdded(event);
 				}
 			}
 		}
 		return ret;
+	}
+
+	void checkImageTitle(String title, Image anImage)
+			throws DuplicatedTitleException {
+		for (Image image : imageList) {
+			if (title.equals(image) && image != anImage) {
+				throw new DuplicatedTitleException(title);
+			}
+		}
 	}
 
 	/**
@@ -167,6 +207,30 @@ public class Project {
 			for (ProjectListener listener : listenerList) {
 				listener.pageAdded(event);
 			}
+		}
+	}
+
+	public void refactorImageRenamed(String oldLabel, String newLabel) {
+		replaceInAllPages("\\[\\[Hình:" + oldLabel, "\\[\\[Hình:" + newLabel);
+	}
+	
+	public void refactorPageRenamed(String oldLabel, String newLabel) {
+		replaceInAllPages("\\[\\[" + oldLabel, "\\[\\[" + newLabel);
+	}
+
+	private void replaceInAllPages(String str, String replacement) {
+		Pattern pattern = Pattern.compile(str);
+		for (Page page : pageList) {
+			recursiveReplace(pattern, replacement, page);
+		}
+	}
+
+	private void recursiveReplace(Pattern pattern, String replacement,
+			Page parent) {
+		parent.setText(pattern.matcher(parent.getText())
+				.replaceAll(replacement));
+		for (Page child : parent.getChildren()) {
+			recursiveReplace(pattern, replacement, child);
 		}
 	}
 

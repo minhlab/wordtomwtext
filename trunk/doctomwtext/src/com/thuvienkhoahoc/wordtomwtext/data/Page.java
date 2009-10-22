@@ -23,6 +23,10 @@ public class Page extends SimpleArticle {
 		return project;
 	}
 
+	/*
+	 * Được gọi từ hàm Project.addPage hoặc Page.addPage, các thao tác 
+	 * kiểm tra đã được thực hiện xong.
+	 */
 	void setProject(Project project) {
 		this.project = project;
 	}
@@ -31,16 +35,35 @@ public class Page extends SimpleArticle {
 		return parent;
 	}
 
-	void setParent(Page parent) {
-		this.parent = parent;
+	void setParent(Page newParent) {
+		if (parent == newParent) {
+			return;
+		}
+		if (parent != null) {
+			parent.removePage(this);
+		}
+		String shortLabel = getShortLabel();
+		parent = newParent;
+		setShortLabel(shortLabel);
 	}
 
-	public void addPage(Page newPage) {
-		if (newPage.isSubpage()) {
-			newPage.parent.removePage(newPage);
+	public void addPage(Page newPage) throws DuplicatedTitleException {
+		if (subpageList.contains(newPage)) {
+			return;
 		}
+		if (newPage.hasChild()) {
+			throw new IllegalArgumentException("Không được phép thêm trang có con.");
+		}
+		if (newPage.isSubpage() || newPage.getProject() != null) {
+			throw new IllegalArgumentException("Remove from current project and parent first.");
+		}
+		
+		project
+				.checkPageTitle(getLabel() + "/" + newPage.getShortLabel(),
+						null);
 		if (subpageList.add(newPage)) {
 			newPage.setParent(this);
+			newPage.setProject(this.project);
 			if (project != null) {
 				project.firePageAdded(newPage, subpageList.indexOf(newPage));
 			}
@@ -78,26 +101,48 @@ public class Page extends SimpleArticle {
 	}
 
 	public void setShortLabel(String label) {
+		if (label == null || label.isEmpty()) {
+			throw new IllegalArgumentException("Label must not be empty.");
+		}
 		if (isSubpage()) {
 			setLabel(parent.getLabel() + "/" + label);
 		} else {
 			setLabel(label);
 		}
 	}
+	
+	public void setShortLabelAndRefactor(String newShortLabel) {
+		String oldLabel = getLabel();
+		setShortLabel(newShortLabel);
+		project.refactorPageRenamed(oldLabel, getLabel());
+	}
 
 	@Override
-	public void setLabel(String label) {
-		if (isSubpage() && !label.startsWith(parent.getLabel() + "/")) {
+	public void setLabel(String newLabel) {
+		if (newLabel == null || newLabel.isEmpty()) {
+			throw new IllegalArgumentException("Label must not be empty.");
+		}
+		if (isSubpage() && !newLabel.startsWith(parent.getLabel() + "/")) {
 			throw new IllegalArgumentException(
 					"Subpage label must start with parent label plus '/'. Try to use setShortLabel() instead.");
 		}
-		if (!this.getLabel().equals(label)) {
-			String oldLabel = getLabel();
-			super.setLabel(label);
-			if (project != null) {
-				project.firePagePropertyChanged(this, oldLabel, label, "label");
-			}
+		if (getLabel().equals(newLabel)) {
+			return;
 		}
+		if (project != null) {
+			project.checkPageTitle(newLabel, this);
+		}
+		String oldLabel = getLabel();
+		super.setLabel(newLabel);
+		if (project != null) {
+			project.firePagePropertyChanged(this, oldLabel, newLabel, "label");
+		}
+	}
+	
+	public void setLabelAndRefactor(String newLabel) {
+		String oldLabel = getLabel();
+		setLabel(newLabel);
+		project.refactorPageRenamed(oldLabel, newLabel);
 	}
 
 	public void setMarkedForRemoval(boolean markedForRemoval) {

@@ -29,6 +29,10 @@ public class Image extends SimpleFile {
 		return project;
 	}
 
+	/*
+	 * Được gọi từ hàm Project.addImage, các thao tác kiểm tra đã
+	 * thực hiện xong.
+	 */
 	void setProject(Project project) {
 		this.project = project;
 	}
@@ -56,12 +60,24 @@ public class Image extends SimpleFile {
 	}
 
 	@Override
-	public void setLabel(String label) {
-		String oldLabel = getLabel();
-		super.setLabel(label);
-		if (project != null) {
-			project.fireImagePropertyChanged(this, oldLabel, label, "label");
+	public void setLabel(String newLabel) {
+		if (newLabel.equals(getLabel())) {
+			return;
 		}
+		if (project != null) {
+			project.checkImageTitle(newLabel, this);
+		}
+		String oldLabel = getLabel();
+		super.setLabel(newLabel);
+		if (project != null) {
+			project.fireImagePropertyChanged(this, oldLabel, newLabel, "label");
+		}
+	}
+	
+	public void setLabelAndRefactor(String newLabel) {
+		String oldLabel = getLabel();
+		setLabel(newLabel);
+		project.refactorImageRenamed(oldLabel, newLabel);
 	}
 
 	@Override

@@ -20,6 +20,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 
+import com.thuvienkhoahoc.wordtomwtext.data.DuplicatedTitleException;
 import com.thuvienkhoahoc.wordtomwtext.data.Image;
 import com.thuvienkhoahoc.wordtomwtext.data.Page;
 import com.thuvienkhoahoc.wordtomwtext.data.Project;
@@ -44,7 +45,7 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 		treeProject.setModel(modProject);
 		treeProject.setCellRenderer(new ProjectTreeCellRenderer());
 		treeProject.setCellEditor(new ProjectTreeCellEditor(treeProject));
-		treeProject.setEditable(true);
+		// treeProject.setEditable(true);
 		JScrollPane scrProject = new JScrollPane(treeProject);
 		scrProject.setPreferredSize(new Dimension(280, 600));
 		pnlWrapper.setLeftComponent(scrProject);
@@ -142,10 +143,16 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 		treeProject.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+				switch (e.getKeyCode()) {
+				case KeyEvent.VK_ENTER:
 					openSelectedArticle();
-				} else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+					break;
+				case KeyEvent.VK_DELETE:
 					toggleMarkedForRemoval();
+					break;
+				case KeyEvent.VK_F2:
+					renameSelectedAritcle();
+					break;
 				}
 				super.keyPressed(e);
 			}
@@ -308,11 +315,20 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 	}
 
 	private void createPage() {
-		String label = JOptionPane.showInputDialog(this,
-				"Bạn hãy nhập tên bài viết (không chứa dấu \"/\")",
-				"Tạo bài viết mới", JOptionPane.QUESTION_MESSAGE);
-		label = label.replaceAll("/", "");
-		project.addPage(new Page(label));
+		while (true) {
+			try {
+				String label = JOptionPane.showInputDialog(this,
+						"Bạn hãy nhập tên bài viết (không chứa dấu \"/\")",
+						"Tạo bài viết mới", JOptionPane.QUESTION_MESSAGE);
+				if (label != null) {
+					label = label.replaceAll("/", "");
+					project.addPage(new Page(label));
+				}
+				break;
+			} catch (DuplicatedTitleException e) {
+				informDuplicateTitleException(e);
+			}
+		}
 	}
 
 	private void createSubpage() {
@@ -321,13 +337,31 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 			Object selectedObject = selectionPath.getLastPathComponent();
 			if (selectedObject instanceof Page) {
 				Page basepage = (Page) selectedObject;
-				String label = JOptionPane.showInputDialog(this,
-						"Bạn hãy nhập tên bài viết (không chứa dấu \"/\")",
-						"Tạo bài viết con mới", JOptionPane.QUESTION_MESSAGE);
-				label = label.replaceAll("/", "");
-				basepage.addPage(new Page(label));
+				while (true) {
+					try {
+						String label = JOptionPane
+								.showInputDialog(
+										this,
+										"Bạn hãy nhập tên bài viết (không chứa dấu \"/\")",
+										"Tạo bài viết con mới",
+										JOptionPane.QUESTION_MESSAGE);
+						if (label != null) {
+							label = label.replaceAll("/", "");
+							basepage.addPage(new Page(label));
+						}
+						break;
+					} catch (DuplicatedTitleException e) {
+						informDuplicateTitleException(e);
+					}
+				}
 			}
 		}
+	}
+
+	private void informDuplicateTitleException(DuplicatedTitleException e) {
+		JOptionPane.showMessageDialog(this, "Tên \"" + e.getTitle()
+				+ "\" đã được sử dụng, bạn hãy chọn tên khác.",
+				"Lỗi trùng tên", JOptionPane.ERROR_MESSAGE);
 	}
 
 	private void toggleMarkedForRemoval() {
@@ -345,7 +379,45 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 	}
 
 	private void renameSelectedAritcle() {
-		treeProject.startEditingAtPath(treeProject.getSelectionPath());
+		Object obj = treeProject.getSelectionPath().getLastPathComponent();
+		DlgArticleRename dlgRename = new DlgArticleRename(this);
+		if (obj instanceof Image) {
+			Image image = (Image) obj;
+			while (true) {
+				try {
+					switch (dlgRename.setupAndShow("Bạn hãy nhập tên mới cho hình ảnh", image.getLabel())) {
+					case DlgArticleRename.REFACTOR_OPTION:
+						image.setLabelAndRefactor(dlgRename.getInputValue());
+						//TODO nhắc nhở lưu trước khi refactor
+						break;
+					case DlgArticleRename.SAVE_OPTION:
+						image.setLabel(dlgRename.getInputValue());
+						break;
+					}
+					break;
+				} catch (DuplicatedTitleException e) {
+					informDuplicateTitleException(e);
+				}
+			}
+		} else if (obj instanceof Page) {
+			Page page = (Page) obj;
+			while (true) {
+				try {
+					switch (dlgRename.setupAndShow("Bạn hãy nhập tên mới cho bài viết", page.getLabel())) {
+					case DlgArticleRename.REFACTOR_OPTION:
+						page.setShortLabelAndRefactor(dlgRename.getInputValue());
+						//TODO nhắc nhở lưu trước khi refactor
+						break;
+					case DlgArticleRename.SAVE_OPTION:
+						page.setShortLabel(dlgRename.getInputValue());
+						break;
+					}
+					break;
+				} catch (DuplicatedTitleException e) {
+					informDuplicateTitleException(e);
+				}
+			}
+		}
 	}
 
 	private void saveSelectedEditor() {
