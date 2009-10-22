@@ -211,10 +211,12 @@ public class Project {
 	}
 
 	public void refactorImageRenamed(String oldLabel, String newLabel) {
+		//XXX viết lại regex cho đúng
 		replaceInAllPages("\\[\\[Hình:" + oldLabel, "\\[\\[Hình:" + newLabel);
 	}
 	
 	public void refactorPageRenamed(String oldLabel, String newLabel) {
+		//XXX viết lại regex cho đúng
 		replaceInAllPages("\\[\\[" + oldLabel, "\\[\\[" + newLabel);
 	}
 
