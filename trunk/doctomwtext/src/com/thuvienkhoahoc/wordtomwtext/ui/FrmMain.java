@@ -196,7 +196,7 @@ public class FrmMain extends JFrame {
 	}
 
 	private void updateUsernameField() {
-		lblUsername.setText(Application.getInstance().getUsername() + " - "
+		lblUsername.setText(Application.getInstance().getUsername() + " trên "
 				+ Application.getInstance().getSitename());
 		lblUsername.setToolTipText(Application.getInstance().getSiteurl());
 	}

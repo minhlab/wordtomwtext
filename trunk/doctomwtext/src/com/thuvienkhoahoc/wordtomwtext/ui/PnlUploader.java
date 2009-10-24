@@ -122,9 +122,9 @@ public class PnlUploader extends AbstractFunctionalPanel {
 			for (Image image : project.getImages()) {
 				publish("\t" + image.getLabel() + "... ");
 
-				SimpleArticle article = Application.getInstance().getBot()
-						.readContent("Image:" + image.getLabel());
-				if (article.getText().trim().length() <= 0) {
+				String path = Application.getInstance().getBot().getImageInfo(
+						image.getLabel());
+				if (path.length() <= 0) {
 					publish("OK\n");
 				} else {
 					publish("TRÙNG TÊN!\n");
@@ -136,10 +136,10 @@ public class PnlUploader extends AbstractFunctionalPanel {
 
 			if (error) {
 				JOptionPane.showMessageDialog(PnlUploader.this,
-						"Bài viết bị trùng tên",
-						"Bài viết của bạn trùng tên với bài trên "
+						"Ảnh hoặc ài viết của bạn trùng tên với bài trên "
 								+ Application.getInstance().getSitename()
-								+ ". Xin hãy sửa lại tên bài viết.",
+								+ ".\nXin hãy sửa lại tên ảnh / bài viết.",
+						"Ảnh / Bài viết bị trùng tên",
 						JOptionPane.ERROR_MESSAGE);
 				return false;
 			}
@@ -182,8 +182,7 @@ public class PnlUploader extends AbstractFunctionalPanel {
 						.showMessageDialog(
 								PnlUploader.this,
 								"Chương trình gặp lỗi khi tải lên bài viết và/hoặc hình ảnh của bạn.\nHãy kiểm tra và tải lại bằng tay.",
-								"Có lỗi khi tải lên",
-								JOptionPane.ERROR_MESSAGE);
+								"Có lỗi khi tải lên", JOptionPane.ERROR_MESSAGE);
 				return false;
 			}
 

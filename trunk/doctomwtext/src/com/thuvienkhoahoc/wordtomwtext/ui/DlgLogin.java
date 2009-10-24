@@ -9,7 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,6 +23,7 @@ import javax.swing.JTextField;
 import net.sourceforge.jwbf.bots.util.JwbfException;
 
 import com.thuvienkhoahoc.wordtomwtext.Application;
+import com.thuvienkhoahoc.wordtomwtext.data.SiteEntry;
 
 @SuppressWarnings("serial")
 public class DlgLogin extends JDialog {
@@ -42,8 +45,9 @@ public class DlgLogin extends JDialog {
 				new GridBagConstraints(0, 0, 1, 1, 0, 0,
 						GridBagConstraints.EAST, GridBagConstraints.NONE,
 						new Insets(5, 5, 0, 3), 0, 0));
-		// TODO remove default site
-		txtSite.setText("http://thuvienkhoahoc.com/tusach/");
+		
+		txtSite.setEditable(true);
+		txtSite.setModel(new DefaultComboBoxModel(SiteEntry.DEFAULT_SITES));
 		txtSite.setPreferredSize(new Dimension(150,
 				txtSite.getPreferredSize().height));
 		getContentPane().add(
@@ -111,7 +115,10 @@ public class DlgLogin extends JDialog {
 
 	protected void onLogin() {
 		try {
-			Application.getInstance().login(txtSite.getText(),
+			Object site = txtSite.getSelectedItem();
+			String url = (site instanceof SiteEntry ? ((SiteEntry) site)
+					.getUrl() : site.toString());
+			Application.getInstance().login(url,
 					txtUsername.getText(),
 					String.valueOf(txtPassword.getPassword()));
 			setVisible(false);
@@ -119,7 +126,6 @@ public class DlgLogin extends JDialog {
 			JOptionPane.showMessageDialog(this, "Lỗi đăng nhập",
 					"Đường dẫn sai. Mời bạn nhập lại",
 					JOptionPane.ERROR_MESSAGE);
-			txtSite.selectAll();
 			txtSite.requestFocusInWindow();
 		} catch (JwbfException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage(),
@@ -136,7 +142,7 @@ public class DlgLogin extends JDialog {
 	private GridBagLayout layoutMain = new GridBagLayout();
 
 	private JLabel lblSite = new JLabel();
-	private JTextField txtSite = new JTextField();
+	private JComboBox txtSite = new JComboBox();
 
 	private JLabel lblUsername = new JLabel();
 	private JTextField txtUsername = new JTextField();
