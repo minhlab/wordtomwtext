@@ -421,7 +421,6 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 						}
 						image.setLabelAndRefactor(dlgRename.getInputValue());
 						reloadAllEditors();
-						// TODO nhắc nhở lưu trước khi refactor
 						break;
 					case DlgArticleRename.SAVE_OPTION:
 						image.setLabel(dlgRename.getInputValue());
