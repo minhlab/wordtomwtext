@@ -39,6 +39,8 @@ public class FrmMain extends JFrame {
 
 	private void initComponents() {
 		this.setTitle("Wordtomwtext - By VLOS");
+//		this.setLocationRelativeTo(null);
+		this.setLocationByPlatform(true);
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		final String[] titles = new String[] { "Chọn tài liệu Word > ",

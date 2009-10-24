@@ -13,8 +13,7 @@ public class ApplicationTester {
 	 * @throws MalformedURLException
 	 * @throws ActionException
 	 */
-	public static void main(String[] args) throws ActionException,
-			MalformedURLException {
+	public static void main(String[] args) throws Exception {
 		Application.getInstance().login("http://thuvienkhoahoc.com/w14/",
 				"Tester2", "1234a");
 		Application.getInstance().run();

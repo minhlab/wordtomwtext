@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import net.sourceforge.jwbf.actions.mw.util.ActionException;
+import net.sourceforge.jwbf.bots.util.JwbfException;
 
 import com.thuvienkhoahoc.wordtomwtext.Application;
 
@@ -26,14 +26,13 @@ import com.thuvienkhoahoc.wordtomwtext.Application;
 public class DlgLogin extends JDialog {
 
 	public DlgLogin(JFrame parent) {
-		super(parent);
+		super(parent, true);
 		initComponents();
 		handleEvents();
 	}
 
 	private void initComponents() {
 		setLocationByPlatform(true);
-		setModal(true);
 		setTitle("Đăng nhập");
 		getContentPane().setLayout(layoutMain);
 
@@ -122,7 +121,7 @@ public class DlgLogin extends JDialog {
 					JOptionPane.ERROR_MESSAGE);
 			txtSite.selectAll();
 			txtSite.requestFocusInWindow();
-		} catch (ActionException e) {
+		} catch (JwbfException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage(),
 					"Lỗi đăng nhập", JOptionPane.ERROR_MESSAGE);
 			txtUsername.selectAll();
