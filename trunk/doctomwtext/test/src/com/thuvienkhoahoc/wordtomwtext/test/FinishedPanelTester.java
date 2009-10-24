@@ -22,7 +22,7 @@ public class FinishedPanelTester extends JFrame {
 	 * @throws IOException
 	 * @throws ActionException
 	 */
-	public static void main(String[] args) throws IOException, ActionException {
+	public static void main(String[] args) throws Exception {
 		// prepare data
 		Application.getInstance().login("http://thuvienkhoahoc.com/w14/",
 				"Tester2", "1234a");

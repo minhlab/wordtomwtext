@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.jwbf.actions.mw.util.ActionException;
+import net.sourceforge.jwbf.actions.mw.util.ProcessException;
 import net.sourceforge.jwbf.bots.MediaWikiBot;
 
 import com.thuvienkhoahoc.wordtomwtext.ui.DlgLogin;
@@ -43,7 +44,7 @@ public class Application {
 	}
 
 	public void login(String site, String username, String password)
-			throws ActionException, MalformedURLException {
+			throws ActionException, MalformedURLException, ProcessException {
 		bot = new MediaWikiBot(site);
 		bot.login(username, password);
 		logedin = true;
