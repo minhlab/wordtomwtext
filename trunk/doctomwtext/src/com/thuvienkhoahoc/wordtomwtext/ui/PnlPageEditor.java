@@ -29,7 +29,7 @@ public class PnlPageEditor extends PnlEditor {
 	private void initComponents() {
 		setLayout(new BorderLayout());
 
-		txtContent.setFont(Font.getFont("Courier 12"));
+		txtContent.setFont(new Font("Courier", Font.PLAIN, 14));
 		add(new JScrollPane(txtContent), BorderLayout.CENTER);
 	}
 
