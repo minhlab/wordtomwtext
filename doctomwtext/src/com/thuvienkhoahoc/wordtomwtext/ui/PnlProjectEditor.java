@@ -9,8 +9,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -18,6 +20,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
+import javax.swing.KeyStroke;
 import javax.swing.tree.TreePath;
 
 import com.thuvienkhoahoc.wordtomwtext.data.DuplicatedTitleException;
@@ -249,6 +252,28 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 				toggleMarkedForRemoval();
 			}
 		});
+
+		this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK),
+				"saveselected");
+		this.getActionMap().put("saveselected", new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				saveSelectedEditor();
+			}
+		});
+
+		this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK),
+				"closeselected");
+		this.getActionMap().put("closeselected", new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				closeSelectedEditor();
+			}
+		});
 	}
 
 	@Override
@@ -385,10 +410,12 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 			Image image = (Image) obj;
 			while (true) {
 				try {
-					switch (dlgRename.setupAndShow("Bạn hãy nhập tên mới cho hình ảnh", image.getLabel())) {
+					switch (dlgRename.setupAndShow(
+							"Bạn hãy nhập tên mới cho hình ảnh", image
+									.getLabel())) {
 					case DlgArticleRename.REFACTOR_OPTION:
 						image.setLabelAndRefactor(dlgRename.getInputValue());
-						//TODO nhắc nhở lưu trước khi refactor
+						// TODO nhắc nhở lưu trước khi refactor
 						break;
 					case DlgArticleRename.SAVE_OPTION:
 						image.setLabel(dlgRename.getInputValue());
@@ -403,10 +430,14 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 			Page page = (Page) obj;
 			while (true) {
 				try {
-					switch (dlgRename.setupAndShow("Bạn hãy nhập tên mới cho bài viết", page.getLabel())) {
+					switch (dlgRename.setupAndShow(
+							"Bạn hãy nhập tên mới cho bài viết", page
+									.getLabel())) {
 					case DlgArticleRename.REFACTOR_OPTION:
-						page.setShortLabelAndRefactor(dlgRename.getInputValue());
-						//TODO nhắc nhở lưu trước khi refactor
+						page
+								.setShortLabelAndRefactor(dlgRename
+										.getInputValue());
+						// TODO nhắc nhở lưu trước khi refactor
 						break;
 					case DlgArticleRename.SAVE_OPTION:
 						page.setShortLabel(dlgRename.getInputValue());
@@ -454,7 +485,10 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 	}
 
 	private void closeSelectedEditor() {
-		closeEditorTab(pnlMain.getSelectedIndex());
+		int selectedIndex = pnlMain.getSelectedIndex();
+		if (selectedIndex >= 0) {
+			closeEditorTab(selectedIndex);
+		}
 	}
 
 	private boolean closeEditorTab(int index) {
