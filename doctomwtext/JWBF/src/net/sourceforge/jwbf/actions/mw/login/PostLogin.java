@@ -114,7 +114,9 @@ public class PostLogin extends MWAction {
 			exceptionText = "Wrong Password";
 		} else if (result.equalsIgnoreCase(notExists)) {
 			exceptionText = "No sutch User";
-		} 
+		} else if (result.equalsIgnoreCase("noName")) {
+			exceptionText = "No name";
+		}
 	}
 
 	public LoginData getLoginData() throws ActionException {
