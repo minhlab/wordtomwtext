@@ -29,7 +29,8 @@ public class UploaderTester extends JFrame {
 				"Tester2", "1234a");
 		
 		Project project = new Project();
-		long id = System.currentTimeMillis();
+//		String id = System.currentTimeMillis() + "";
+		String id = "";
 		
 		Page page = new Page("Thử nghiệm" + id);
 		FileReader input = new FileReader("test/data/mwtext.txt");
