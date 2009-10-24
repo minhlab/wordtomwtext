@@ -30,7 +30,7 @@ import java.io.File;
  */
 public class SimpleFile extends SimpleArticle {
 
-	private File filename;
+	private File file;
 	
 	/**
 	 * 
@@ -40,7 +40,7 @@ public class SimpleFile extends SimpleArticle {
 	public SimpleFile(final String Label, String Filename) {
 		setText("");
 		setLabel(Label);
-		filename = new File(Filename);
+		file = new File(Filename);
 	}
 
 	/**
@@ -51,7 +51,7 @@ public class SimpleFile extends SimpleArticle {
 	public SimpleFile(final String Label, File Filename) {
 		setText("");
 		setLabel(Label);
-		filename = Filename;
+		file = Filename;
 	}
 	
 	/**
@@ -61,7 +61,7 @@ public class SimpleFile extends SimpleArticle {
 	public SimpleFile(File Filename) {
 		setText("");
 		setLabel(Filename.getName());
-		filename = Filename;
+		file = Filename;
 	}
 	
 	/**
@@ -70,17 +70,20 @@ public class SimpleFile extends SimpleArticle {
 	 */
 	public SimpleFile(String Filename) {
 		setText("");
-		filename = new File(Filename);
-		setLabel(filename.getName());
+		file = new File(Filename);
+		setLabel(file.getName());
 	}
 
 	public String getFilename() {
-		return filename.getPath();
+		return file.getPath();
 	}
 
 	public File getFile()
 	{
-		return this.filename;
+		return this.file;
 	}
 	
+	public void setFile(File file) {
+		this.file = file;
+	}
 }
