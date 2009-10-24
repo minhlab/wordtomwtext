@@ -217,6 +217,7 @@ public class MediaWikiBot extends HttpBot {
 		 PostLogin pl = new PostLogin(username, passwd);
 		 performAction(pl);
 		 login = pl.getLoginData();
+		 loggedIn = true;
 //		httpLogin(username, passwd, null);
 	}
 	/**

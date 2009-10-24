@@ -1,6 +1,7 @@
 package com.thuvienkhoahoc.wordtomwtext.test;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -56,8 +57,9 @@ public class UploaderTester extends JFrame {
 		
 		PnlUploader uploader = new PnlUploader();
 		uploader.load(project);
+		uploader.setPreferredSize(new Dimension(450, 380));
 		frame.getContentPane().add(uploader, BorderLayout.CENTER);
-		
+
 		frame.pack();
 		frame.setVisible(true);
 	}

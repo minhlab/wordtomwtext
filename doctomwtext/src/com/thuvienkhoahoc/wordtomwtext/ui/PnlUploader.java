@@ -1,6 +1,7 @@
 package com.thuvienkhoahoc.wordtomwtext.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
@@ -44,7 +45,10 @@ public class PnlUploader extends AbstractFunctionalPanel {
 
 		add(pnlProgress, BorderLayout.NORTH);
 
+		txtMessage.setFont(new Font("Arial", Font.PLAIN, 14));
 		txtMessage.setEditable(false);
+		txtMessage.setLineWrap(true);
+		txtMessage.setWrapStyleWord(true);
 		add(new JScrollPane(txtMessage), BorderLayout.CENTER);
 	}
 
@@ -77,7 +81,7 @@ public class PnlUploader extends AbstractFunctionalPanel {
 		return JOptionPane
 				.showConfirmDialog(
 						this,
-						"Dữ liệu của bạn chưa được tải lên hoàn toàn và sẽ biến mất "
+						"Dữ liệu của bạn chưa được tải lên hoàn toàn và sẽ biến mất\n"
 								+ "nếu chương trình bị đóng. Bạn có chắc chắn muốn đóng chương trình?",
 						"Xác nhận đóng chương trình",
 						JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
@@ -177,8 +181,8 @@ public class PnlUploader extends AbstractFunctionalPanel {
 				JOptionPane
 						.showMessageDialog(
 								PnlUploader.this,
+								"Chương trình gặp lỗi khi tải lên bài viết và/hoặc hình ảnh của bạn.\nHãy kiểm tra và tải lại bằng tay.",
 								"Có lỗi khi tải lên",
-								"Chương trình gặp lỗi khi tải lên bài viết và/hoặc hình ảnh của bạn. Hãy kiểm tra lại và tải lên bằng tay nếu cần.",
 								JOptionPane.ERROR_MESSAGE);
 				return false;
 			}
