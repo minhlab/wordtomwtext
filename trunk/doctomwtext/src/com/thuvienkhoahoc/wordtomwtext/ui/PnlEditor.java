@@ -20,12 +20,12 @@ public abstract class PnlEditor extends JPanel {
 		return dirty;
 	}
 
-	protected abstract void updateLabel();
+	protected abstract void labelUpdated();
 
 	protected void setDirty(boolean dirty) {
 		if (dirty != this.dirty) {
 			this.dirty = dirty;
-			updateLabel();
+			labelUpdated();
 		}
 	}
 

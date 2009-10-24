@@ -8,11 +8,13 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -414,7 +416,11 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 							"Bạn hãy nhập tên mới cho hình ảnh", image
 									.getLabel())) {
 					case DlgArticleRename.REFACTOR_OPTION:
+						if (!ensureAllEditorSaved()) {
+							break;
+						}
 						image.setLabelAndRefactor(dlgRename.getInputValue());
+						reloadAllEditors();
 						// TODO nhắc nhở lưu trước khi refactor
 						break;
 					case DlgArticleRename.SAVE_OPTION:
@@ -434,10 +440,13 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 							"Bạn hãy nhập tên mới cho bài viết", page
 									.getLabel())) {
 					case DlgArticleRename.REFACTOR_OPTION:
+						if (!ensureAllEditorSaved()) {
+							break;
+						}
 						page
 								.setShortLabelAndRefactor(dlgRename
 										.getInputValue());
-						// TODO nhắc nhở lưu trước khi refactor
+						reloadAllEditors();
 						break;
 					case DlgArticleRename.SAVE_OPTION:
 						page.setShortLabel(dlgRename.getInputValue());
@@ -449,6 +458,36 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 				}
 			}
 		}
+	}
+
+	private void reloadAllEditors() {
+		for (int i = pnlMain.getTabCount() - 1; i >= 0; i--) {
+			((PnlEditor)pnlMain.getComponentAt(i)).load();
+		}
+	}
+
+	private boolean ensureAllEditorSaved() {
+		ArrayList<PnlEditor> unsavedEditors = new ArrayList<PnlEditor>();
+		for (int i = pnlMain.getTabCount() - 1; i >= 0; i--) {
+			PnlEditor editor = (PnlEditor) pnlMain.getComponentAt(i);
+			if (editor.isDirty()) {
+				unsavedEditors.add(editor);
+			}
+		}
+		if (unsavedEditors.size() <= 0) {
+			return true;
+		}
+		if (dlgSavingChooser == null) {
+			dlgSavingChooser = new DlgSavingChooser((JFrame) JOptionPane.getFrameForComponent(this));
+		}
+		Object[] savedEditors = dlgSavingChooser.loadObjectsAndShow(unsavedEditors.toArray());
+		if (savedEditors == null) {
+			return false;
+		}
+		for (int i = 0; i < savedEditors.length; i++) {
+			((PnlEditor)savedEditors[i]).save();
+		}
+		return true;
 	}
 
 	private void saveSelectedEditor() {
@@ -542,5 +581,6 @@ public class PnlProjectEditor extends AbstractFunctionalPanel {
 	private JCheckBoxMenuItem miRemove = new JCheckBoxMenuItem();
 	private JMenuItem miCreateSubpage = new JMenuItem();
 	private JMenuItem miCreatePage = new JMenuItem();
+	private DlgSavingChooser dlgSavingChooser = null;
 
 }

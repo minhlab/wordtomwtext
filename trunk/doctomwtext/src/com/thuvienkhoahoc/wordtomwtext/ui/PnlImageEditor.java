@@ -73,7 +73,7 @@ public class PnlImageEditor extends PnlEditor {
 			@Override
 			public void imagePropertyChanged(ProjectEvent evt) {
 				if ("label".equals(evt.getPropertyName())) {
-					updateLabel();
+					labelUpdated();
 				}
 			}
 		});
@@ -192,7 +192,7 @@ public class PnlImageEditor extends PnlEditor {
 	}
 
 	@Override
-	protected void updateLabel() {
+	protected void labelUpdated() {
 		String title = getObject().getLabel();
 		if (dirty) {
 			title = "*" + title;
@@ -217,6 +217,11 @@ public class PnlImageEditor extends PnlEditor {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return getObject().getLabel();
+	}
+	
 	/*
 	 * Components
 	 */

@@ -41,7 +41,7 @@ public class PnlPageEditor extends PnlEditor {
 					return;
 				}
 				if ("label".equals(evt.getPropertyName())) {
-					updateLabel();
+					labelUpdated();
 				} else if ("markedForRemoval".equals(evt.getPropertyName())) {
 					updateRemovalStatus();
 				}
@@ -86,7 +86,7 @@ public class PnlPageEditor extends PnlEditor {
 		setDirty(false);
 	}
 
-	protected void updateLabel() {
+	protected void labelUpdated() {
 		String title = getObject().getLabel();
 		if (dirty) {
 			title = "*" + title;
@@ -95,4 +95,9 @@ public class PnlPageEditor extends PnlEditor {
 		this.setName(title);
 	}
 
+	@Override
+	public String toString() {
+		return getObject().getLabel();
+	}
+	
 }

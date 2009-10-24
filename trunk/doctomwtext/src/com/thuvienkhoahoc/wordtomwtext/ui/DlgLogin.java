@@ -113,7 +113,13 @@ public class DlgLogin extends JDialog {
 		});
 	}
 
-	protected void onLogin() {
+	private void onLogin() {
+		if (txtUsername.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(this, "Mời bạn nhập vào tên đăng nhập",
+					"Bạn chưa nhập tên", JOptionPane.ERROR_MESSAGE);
+			txtUsername.requestFocusInWindow();
+			return;
+		}
 		try {
 			Object site = txtSite.getSelectedItem();
 			String url = (site instanceof SiteEntry ? ((SiteEntry) site)
