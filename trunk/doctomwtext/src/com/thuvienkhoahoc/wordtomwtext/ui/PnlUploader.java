@@ -1,19 +1,25 @@
 package com.thuvienkhoahoc.wordtomwtext.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.Color;
+import java.awt.Component;
 import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
 import net.sourceforge.jwbf.contentRep.mw.SimpleArticle;
 
@@ -25,6 +31,11 @@ import com.thuvienkhoahoc.wordtomwtext.data.Project;
 @SuppressWarnings("serial")
 public class PnlUploader extends AbstractFunctionalPanel {
 
+	private int maxThread = 4;
+
+	private int totalTasks;
+	private int completedTasks;
+
 	private Project project;
 
 	public PnlUploader() {
@@ -32,37 +43,72 @@ public class PnlUploader extends AbstractFunctionalPanel {
 	}
 
 	private void initComponents() {
-		this.setLayout(new BorderLayout());
+		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-		BorderLayout layProgress = new BorderLayout();
-		layProgress.setHgap(5);
+		modCheckList = new DefaultTableModel(
+				new String[] { "Tên", "Trạng thái" }, 0);
+		tblCheckList.setModel(modCheckList);
+		tblCheckList.setDefaultRenderer(Object.class, new DefaultRenderer());
+		add(new JScrollPane(tblCheckList), 0.0);
 
-		pnlProgress.setBorder(BorderFactory.createEmptyBorder(3, 5, 5, 5));
-		pnlProgress.setLayout(layProgress);
+		this.add(barProgress, 0.0);
 
-		pnlProgress.add(barProgress, BorderLayout.CENTER);
-		pnlProgress.add(lblProgress, BorderLayout.EAST);
-
-		add(pnlProgress, BorderLayout.NORTH);
-
-		txtMessage.setFont(new Font("Arial", Font.PLAIN, 14));
-		txtMessage.setEditable(false);
-		txtMessage.setLineWrap(true);
-		txtMessage.setWrapStyleWord(true);
-		add(new JScrollPane(txtMessage), BorderLayout.CENTER);
+		lblProgress.setHorizontalAlignment(SwingConstants.LEFT);
+		this.add(lblProgress, 0.0);
 	}
 
-	private void appendMessage(String msg) {
-		txtMessage.append(msg);
-		txtMessage.setCaretPosition(txtMessage.getDocument().getLength() - 1);
-	}
-
+	@SuppressWarnings("unchecked")
 	@Override
 	public void load(Object obj) {
 		this.project = (Project) obj;
+
+		modCheckList.getDataVector().clear();
+		for (Page page : project.getPages()) {
+			Vector<Object> row = new Vector<Object>();
+			row.add(page);
+			row.add(STATE_READY);
+			modCheckList.getDataVector().add(row);
+		}
+		for (Image image : project.getImages()) {
+			Vector<Object> row = new Vector<Object>();
+			row.add(image);
+			row.add(STATE_READY);
+			modCheckList.getDataVector().add(row);
+		}
+		modCheckList.fireTableDataChanged();
+
 		setState(STATE_RUNNING);
-		txtMessage.setText("");
-		new Uploader().execute();
+		lblProgress.setForeground(Color.BLACK);
+		new Worker().execute();
+	}
+
+	@SuppressWarnings("unchecked")
+	private void setStateFromOtherThread(final Object obj, final int state) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+
+				@Override
+				public void run() {
+					for (int rowIndex = 0; rowIndex < modCheckList
+							.getRowCount(); rowIndex++) {
+						Vector row = (Vector) modCheckList.getDataVector().get(
+								rowIndex);
+						Object item = row.get(0);
+						if (item == obj) {
+							row.set(1, state);
+							modCheckList.fireTableCellUpdated(rowIndex, 1);
+							completedTasks++;
+							barProgress.setValue(completedTasks * 100
+									/ totalTasks);
+							return;
+						}
+					}
+				}
+			});
+		} catch (Exception e) {
+			// không ảnh hưởng lắm đến chương trình
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -87,143 +133,240 @@ public class PnlUploader extends AbstractFunctionalPanel {
 						JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
 	}
 
-	/*
-	 * Workers
-	 */
-	private class Uploader extends SwingWorker<Boolean, String> implements
-			PropertyChangeListener {
+	private class PageChecker implements Runnable {
 
-		public Uploader() {
-			this.addPropertyChangeListener(this);
+		private Page page;
+
+		public PageChecker(Page page) {
+			super();
+			this.page = page;
 		}
 
 		@Override
-		protected Boolean doInBackground() throws Exception {
-			boolean error = false;
-			int counter = 0, total = (project.getPages().size() + project
-					.getImages().size()) * 2;
-			publish("Kiểm tra tên bài viết và ảnh...\n");
-
-			for (Page page : project.getPages()) {
-				publish("\t" + page.getLabel() + "... ");
-
+		public void run() {
+			try {
 				SimpleArticle article = Application.getInstance().getBot()
 						.readContent(page.getLabel());
 				if (article.getText().trim().length() <= 0) {
-					publish("OK\n");
+					setStateFromOtherThread(page, STATE_FINISHED);
 				} else {
-					publish("TRÙNG TÊN!\n");
-					error = true;
+					setStateFromOtherThread(page, STATE_ERROR);
 				}
-
-				setProgress(++counter * 100 / total);
+			} catch (Exception e) {
+				setStateFromOtherThread(page, STATE_ERROR);
+				e.printStackTrace();
 			}
+		}
 
-			for (Image image : project.getImages()) {
-				publish("\t" + image.getLabel() + "... ");
+	}
 
-				String path = Application.getInstance().getBot().getImageInfo(
-						image.getLabel());
-				if (path.length() <= 0) {
-					publish("OK\n");
-				} else {
-					publish("TRÙNG TÊN!\n");
-					error = true;
-				}
+	private class ImageChecker implements Runnable {
 
-				setProgress(++counter * 100 / total);
-			}
+		private Image image;
 
-			if (error) {
-				JOptionPane.showMessageDialog(PnlUploader.this,
-						"Ảnh hoặc ài viết của bạn trùng tên với bài trên "
-								+ Application.getInstance().getSitename()
-								+ ".\nXin hãy sửa lại tên ảnh / bài viết.",
-						"Ảnh / Bài viết bị trùng tên",
-						JOptionPane.ERROR_MESSAGE);
-				return false;
-			}
-
-			publish("Tải lên " + Application.getInstance().getSitename()
-					+ "...\n");
-
-			for (Page page : project.getPages()) {
-				publish("\t" + page.getLabel() + "... ");
-
-				try {
-					Application.getInstance().getBot().writeContent(page);
-					publish("OK\n");
-				} catch (Exception ex) {
-					error = true;
-					publish("LỖI: " + ex.getMessage() + "\n");
-					ex.printStackTrace();
-				}
-
-				setProgress(++counter * 100 / total);
-			}
-
-			for (Image image : project.getImages()) {
-				publish("\t" + image.getLabel() + "... ");
-
-				try {
-					Application.getInstance().getBot().uploadFile(image);
-					publish("OK\n");
-				} catch (Exception ex) {
-					error = true;
-					publish("LỖI: " + ex.getMessage() + "\n");
-					ex.printStackTrace();
-				}
-
-				setProgress(++counter * 100 / total);
-			}
-
-			if (error) {
-				JOptionPane
-						.showMessageDialog(
-								PnlUploader.this,
-								"Chương trình gặp lỗi khi tải lên bài viết và/hoặc hình ảnh của bạn.\nHãy kiểm tra và tải lại bằng tay.",
-								"Có lỗi khi tải lên", JOptionPane.ERROR_MESSAGE);
-				return false;
-			}
-
-			publish("Xin chúc mừng! Toàn bộ bài viết và hình ảnh của bạn đã được tải thành công lên "
-					+ Application.getInstance().getSitename()
-					+ ". Cảm ơn bạn đã đóng góp!");
-			return true;
+		public ImageChecker(Image image) {
+			super();
+			this.image = image;
 		}
 
 		@Override
-		protected void process(List<String> chunks) {
-			for (String chunk : chunks) {
-				appendMessage(chunk);
+		public void run() {
+			try {
+				String path = Application.getInstance().getBot().getImageInfo(
+						image.getLabel());
+				if (path.length() <= 0) {
+					setStateFromOtherThread(image, STATE_FINISHED);
+				} else {
+					setStateFromOtherThread(image, STATE_ERROR);
+				}
+			} catch (Exception e) {
+				setStateFromOtherThread(image, STATE_ERROR);
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	private class ImageUploader implements Runnable {
+
+		private Image image;
+
+		public ImageUploader(Image image) {
+			super();
+			this.image = image;
+		}
+
+		@Override
+		public void run() {
+			try {
+				Application.getInstance().getBot().uploadFile(image);
+				setStateFromOtherThread(image, STATE_FINISHED);
+			} catch (Exception e) {
+				setStateFromOtherThread(image, STATE_ERROR);
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	private class PageUploader implements Runnable {
+
+		private Page page;
+
+		public PageUploader(Page page) {
+			super();
+			this.page = page;
+		}
+
+		@Override
+		public void run() {
+			try {
+				Application.getInstance().getBot().writeContent(page);
+				setStateFromOtherThread(page, STATE_FINISHED);
+			} catch (Exception e) {
+				setStateFromOtherThread(page, STATE_ERROR);
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	private class Worker extends SwingWorker<String, Object> {
+
+		@SuppressWarnings("unchecked")
+		@Override
+		protected String doInBackground() throws Exception {
+			ThreadPoolExecutor pool = null;
+			try {
+				totalTasks = (project.getImages().size() + project.getPages()
+						.size()) * 2;
+				completedTasks = 0;
+
+				// kiểm tra từng phần tử
+				pool = new ThreadPoolExecutor(2, maxThread, 1,
+						TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+				publish("Kiểm tra tính khả dụng của tên trang...");
+				for (Page page : project.getPages()) {
+					pool.submit(new PageChecker(page));
+				}
+				for (Image image : project.getImages()) {
+					pool.submit(new ImageChecker(image));
+				}
+				pool.shutdown();
+				pool.awaitTermination(totalTasks, TimeUnit.MINUTES);
+
+				// duyệt và thiết lập lại
+				for (Object obj : modCheckList.getDataVector()) {
+					Vector row = (Vector) obj;
+					if (((Integer) row.get(1)).intValue() != STATE_FINISHED) {
+						return "Có phần tử trùng tên, xin vui lòng quay lại sửa.";
+					}
+					row.set(1, STATE_READY);
+				}
+
+				// tải lên
+				pool = new ThreadPoolExecutor(2, maxThread, 1,
+						TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+				publish("Tải trang và hình ảnh lên máy phục vụ...");
+				for (Page page : project.getPages()) {
+					pool.submit(new PageUploader(page));
+				}
+				for (Image image : project.getImages()) {
+					pool.submit(new ImageUploader(image));
+				}
+				pool.shutdown();
+				pool.awaitTermination(totalTasks, TimeUnit.MINUTES);
+
+				publish(100);
+				publish("Hoàn thành.");
+				return null;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				return "Lỗi nội bộ xảy ra, tác vụ của bạn chưa được hoàn thành.";
+			} finally {
+				if (pool != null) {
+					pool.shutdown();
+				}
 			}
 		}
 
 		@Override
 		protected void done() {
 			try {
-				setState(get() ? STATE_FINISHED : STATE_ERROR);
+				String mess = get();
+				if (mess == null) {
+					setState(STATE_FINISHED);
+				} else {
+					lblProgress.setText(mess);
+					lblProgress.setForeground(Color.RED);
+					setState(STATE_ERROR);
+				}
 			} catch (Exception e) {
+				// never happen
 				e.printStackTrace();
 			}
 		}
 
 		@Override
-		public void propertyChange(PropertyChangeEvent evt) {
-			if ("progress".equals(evt.getPropertyName())) {
-				barProgress.setValue((Integer) evt.getNewValue());
-				lblProgress.setText(evt.getNewValue() + "%");
+		protected void process(List<Object> chunks) {
+			for (Object value : chunks) {
+				if (value instanceof String) {
+					lblProgress.setText((String) value);
+				} else if (value instanceof Integer) {
+					barProgress.setValue((Integer) value);
+				}
 			}
 		}
+	}
 
-	};
+	private static ImageIcon createIcon(String name) {
+		return new ImageIcon(PnlUploader.class.getResource("../images/" + name));
+	}
+
+	private class DefaultRenderer extends DefaultTableCellRenderer {
+		@Override
+		public Component getTableCellRendererComponent(JTable table,
+				Object value, boolean isSelected, boolean hasFocus, int row,
+				int column) {
+			JLabel label = (JLabel) super.getTableCellRendererComponent(table,
+					value, isSelected, hasFocus, row, column);
+			if (value instanceof Integer) {
+				switch (((Integer) value).intValue()) {
+				case STATE_ERROR:
+					label.setText("Lỗi");
+					label.setIcon(icoError);
+					break;
+				case STATE_FINISHED:
+					label.setText("Hoàn thành");
+					label.setIcon(icoFinished);
+					break;
+				case STATE_READY:
+					label.setText("Sẵn sàng");
+					label.setIcon(icoReady);
+					break;
+				case STATE_RUNNING:
+					label.setText("Đang chạy");
+					label.setIcon(icoRunning);
+					break;
+				}
+			} else {
+				label.setIcon(null);
+			}
+			return label;
+		}
+	}
 
 	/*
 	 * Components
 	 */
-	private JTextArea txtMessage = new JTextArea();
 	private JProgressBar barProgress = new JProgressBar();
 	private JLabel lblProgress = new JLabel();
-	private JPanel pnlProgress = new JPanel();
+	private JTable tblCheckList = new JTable();
+	private DefaultTableModel modCheckList = new DefaultTableModel();
+
+	private ImageIcon icoError = createIcon("error.gif");
+	private ImageIcon icoFinished = createIcon("finished.png");
+	private ImageIcon icoReady = createIcon("ready.png");
+	private ImageIcon icoRunning = createIcon("running.png");
 
 }

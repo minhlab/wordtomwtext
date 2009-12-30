@@ -30,6 +30,7 @@ import net.sourceforge.jwbf.actions.mw.util.ActionException;
 import net.sourceforge.jwbf.actions.mw.util.ProcessException;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
 
 /**
@@ -49,7 +50,9 @@ public abstract class HttpBot {
 	 * 
 	 */
 	protected HttpBot() {
-		client = new HttpClient();
+		MultiThreadedHttpConnectionManager connectionManager = 
+      		new MultiThreadedHttpConnectionManager();
+		client = new HttpClient(connectionManager);
 
 	}
 

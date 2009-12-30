@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -44,11 +45,15 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 		pnlFiles.setLayout(new GridBagLayout());
 
 		btnAdd.setText("Thêm");
+		btnAdd.setIcon(new ImageIcon(PnlFileChooser.class
+				.getResource("../images/list-add.png")));
 		pnlFiles.add(btnAdd, new GridBagConstraints(0, 0, 1, 1, 0, 0,
 				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5,
 						3, 0, 0), 0, 0));
 
 		btnRemove.setText("Bớt");
+		btnRemove.setIcon(new ImageIcon(this.getClass()
+				.getResource("../images/list-remove.png")));
 		pnlFiles.add(btnRemove, new GridBagConstraints(1, 0, 1, 1, 0, 0,
 				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5,
 						2, 0, 5), 0, 0));
@@ -138,6 +143,11 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 	}
 
 	@Override
+	public boolean canBack() {
+		return false;
+	}
+
+	@Override
 	public boolean canClose() {
 		if (modFiles.getRowCount() <= 0) {
 			return true;
@@ -147,7 +157,7 @@ public class PnlFileChooser extends AbstractFunctionalPanel {
 						+ "Bạn có chắc muốn thoát khỏi chương trình?",
 				"Xác nhận đóng chương trình", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
 	}
-	
+
 	/*
 	 * Components
 	 */

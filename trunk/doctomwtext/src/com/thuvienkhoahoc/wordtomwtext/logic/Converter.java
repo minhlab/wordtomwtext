@@ -281,7 +281,7 @@ public class Converter {
 		Picture pic = picTable.extractPicture(run, false);
 		if (pic.suggestFileExtension().length() > 0) {
 			String namePic = nameInput + "-" + pic.suggestFullFileName();
-			String filename = DIR_NAME + namePic;
+			String filename = DIR_NAME + "/" + namePic;
 			OutputStream outPic = new FileOutputStream(filename);
 			Image newImage = new Image(namePic, filename);
 			setDefaultValues(newImage);

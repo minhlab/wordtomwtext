@@ -1,6 +1,8 @@
 package com.thuvienkhoahoc.wordtomwtext.test;
 
+import java.io.FileInputStream;
 import java.net.MalformedURLException;
+import java.util.Properties;
 
 import net.sourceforge.jwbf.actions.mw.util.ActionException;
 
@@ -14,8 +16,13 @@ public class ApplicationTester {
 	 * @throws ActionException
 	 */
 	public static void main(String[] args) throws Exception {
-		Application.getInstance().login("http://thuvienkhoahoc.com/w14/",
-				"Tester2", "1234a");
+		Properties prop = new Properties();
+		prop.load(new FileInputStream(
+				"test/config/testconfig.properties"));
+		Application.getInstance().login(
+				prop.getProperty("site"), 
+				prop.getProperty("user"), 
+				prop.getProperty("pass"));
 		Application.getInstance().run();
 	}
 
