@@ -2,8 +2,10 @@ package com.thuvienkhoahoc.wordtomwtext.test;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Properties;
 
 import javax.swing.JFrame;
 
@@ -25,12 +27,17 @@ public class UploaderTester extends JFrame {
 	 */
 	public static void main(String[] args) throws Exception {
 		// prepare data
-		Application.getInstance().login("http://thuvienkhoahoc.com/w14/",
-				"Tester2", "1234a");
+		Properties prop = new Properties();
+		prop.load(new FileInputStream(
+				"test/config/testconfig.properties"));
+		Application.getInstance().login(
+				prop.getProperty("site"), 
+				prop.getProperty("user"), 
+				prop.getProperty("pass"));
 		
 		Project project = new Project();
-//		String id = System.currentTimeMillis() + "";
-		String id = "";
+		String id = System.currentTimeMillis() + "";
+//		String id = "";
 		
 		Page page = new Page("Thử nghiệm" + id);
 		FileReader input = new FileReader("test/data/mwtext.txt");

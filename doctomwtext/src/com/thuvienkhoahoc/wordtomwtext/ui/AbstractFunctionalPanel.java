@@ -41,7 +41,7 @@ public abstract class AbstractFunctionalPanel extends JPanel {
 	}
 	
 	public boolean canClose() {
-		return true;
+		return state != STATE_RUNNING;
 	}
 	
 }

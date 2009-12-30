@@ -19,6 +19,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -39,7 +40,7 @@ public class FrmMain extends JFrame {
 
 	private void initComponents() {
 		this.setTitle("Wordtomwtext - By VLOS");
-//		this.setLocationRelativeTo(null);
+		// this.setLocationRelativeTo(null);
 		this.setLocationByPlatform(true);
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
@@ -53,9 +54,8 @@ public class FrmMain extends JFrame {
 		tabLabels = new JLabel[titles.length];
 		for (int i = 0; i < titles.length; i++) {
 			tabLabels[i] = new JLabel(titles[i]);
-			tabLabels[i].setFont(new Font("Times New Roman", Font.BOLD
-					| Font.ITALIC, 14));
-			tabLabels[i].setForeground(Color.LIGHT_GRAY);
+			tabLabels[i].setFont(DESELECTED_FONT);
+			tabLabels[i].setForeground(DESELECTED_COLOR);
 			pnlTabRun.add(tabLabels[i]);
 		}
 
@@ -87,10 +87,24 @@ public class FrmMain extends JFrame {
 		pnlButton.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
 
 		btnBack.setText("Quay lại");
+		btnBack.setIcon(new ImageIcon(this.getClass()
+				.getResource("../images/go-back.png")));
 		pnlButton.add(btnBack);
 
 		btnNext.setText("Tiếp tục");
+		btnNext.setIcon(new ImageIcon(this.getClass()
+				.getResource("../images/go-next.png")));
 		pnlButton.add(btnNext);
+
+		btnFirst.setText("Về đầu");
+		btnFirst.setIcon(new ImageIcon(this.getClass()
+				.getResource("../images/go-first.png")));
+		pnlButton.add(btnFirst);
+
+		btnExit.setText("Thoát");
+		btnExit.setIcon(new ImageIcon(this.getClass()
+				.getResource("../images/exit.png")));
+		pnlButton.add(btnExit);
 
 		getContentPane().add(pnlButton, BorderLayout.SOUTH);
 
@@ -102,27 +116,39 @@ public class FrmMain extends JFrame {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
-				onWindowClosing();
+				quit();
 			}
 		});
 		lblSignIn.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getButton() == MouseEvent.BUTTON1) {
-					onRelogin();
+					relogin();
 				}
 			}
 		});
 		btnBack.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				onBack();
+				goBack();
 			}
 		});
 		btnNext.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				onNext();
+				goNext();
+			}
+		});
+		btnFirst.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				goFirst();
+			}
+		});
+		btnExit.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				quit();
 			}
 		});
 		PropertyChangeListener tabPropertyChangeListener = new PropertyChangeListener() {
@@ -131,7 +157,7 @@ public class FrmMain extends JFrame {
 			public void propertyChange(PropertyChangeEvent evt) {
 				if (evt.getSource() == getSelectedTab()) {
 					if ("state".equals(evt.getPropertyName())) {
-						updateState();
+						updateButtonState();
 					}
 				}
 			}
@@ -141,22 +167,28 @@ public class FrmMain extends JFrame {
 		}
 	}
 
-	protected void onWindowClosing() {
+	protected void quit() {
 		if (getSelectedTab().canClose()) {
 			Application.getInstance().exit(0);
 		}
 	}
 
-	protected void onNext() {
+	private void goNext() {
 		if (getSelectedTab().canNext() && getSelectedTab().next()) {
-			setSelectedIndex((selectedIndex + 1) % tabPanels.length, false,
-					getSelectedTab().getResult());
+			setSelectedIndex(selectedIndex + 1, false, getSelectedTab()
+					.getResult());
 		}
 	}
 
-	protected void onBack() {
+	private void goBack() {
 		if (getSelectedTab().canBack()) {
 			setSelectedIndex(selectedIndex - 1, true, null);
+		}
+	}
+
+	private void goFirst() {
+		if (getSelectedTab().canBack()) {
+			setSelectedIndex(0, true, null);
 		}
 	}
 
@@ -164,20 +196,23 @@ public class FrmMain extends JFrame {
 		return tabPanels[selectedIndex];
 	}
 
-	private void setSelectedIndex(int selectedIndex, boolean surpressLoad,
+	private void setSelectedIndex(int newIndex, boolean surpressLoad,
 			Object data) {
-		tabLabels[this.selectedIndex].setForeground(Color.LIGHT_GRAY);
-		tabLabels[selectedIndex].setForeground(Color.BLACK);
-		this.selectedIndex = selectedIndex;
+		tabLabels[selectedIndex].setForeground(DESELECTED_COLOR);
+		tabLabels[selectedIndex].setFont(DESELECTED_FONT);
+		tabLabels[newIndex].setForeground(SELECTED_COLOR);
+		tabLabels[newIndex].setFont(SELECTED_FONT);
+		this.selectedIndex = newIndex;
+		
 		if (!surpressLoad) {
-			tabPanels[selectedIndex].load(data);
+			tabPanels[newIndex].load(data);
 		}
-		layoutMainWrapper.show(pnlMainWrapper, tabLabels[selectedIndex]
+		layoutMainWrapper.show(pnlMainWrapper, tabLabels[newIndex]
 				.getText());
-		updateState();
+		updateButtonState();
 	}
 
-	protected void onRelogin() {
+	protected void relogin() {
 		if (!getSelectedTab().canClose()) {
 			return;
 		}
@@ -190,9 +225,10 @@ public class FrmMain extends JFrame {
 		setVisible(true);
 	}
 
-	private void updateState() {
+	private void updateButtonState() {
 		btnBack.setEnabled(getSelectedTab().canBack());
 		btnNext.setEnabled(getSelectedTab().canNext());
+		btnFirst.setEnabled(selectedIndex == tabPanels.length-1);
 	}
 
 	private void updateUsernameField() {
@@ -218,5 +254,14 @@ public class FrmMain extends JFrame {
 	private FlowLayout layoutButton = new FlowLayout(FlowLayout.RIGHT, 5, 0);
 	private JButton btnNext = new JButton();
 	private JButton btnBack = new JButton();
+	private JButton btnFirst = new JButton();
+	private JButton btnExit = new JButton();
+
+	private final Font SELECTED_FONT = new Font("Times New Roman", Font.BOLD
+			| Font.ITALIC, 18);
+	private final Font DESELECTED_FONT = new Font("Times New Roman", Font.BOLD
+			| Font.ITALIC, 14);
+	private final Color SELECTED_COLOR = Color.BLACK;
+	private final Color DESELECTED_COLOR = Color.LIGHT_GRAY;
 
 }

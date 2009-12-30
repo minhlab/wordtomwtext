@@ -66,7 +66,7 @@ public class PnlFinished extends AbstractFunctionalPanel {
 			sb.append("</li>");
 		}
 		sb.append("</ul>");
-		sb.append("<h3>Hãy nhấn <i>\"Tiếp tục\"</i> để "
+		sb.append("<h3>Hãy nhấn <i>\"Về đầu\"</i> để "
 				+ "chuyển đổi và tải lên những tệp khác!</h3>");
 		txtMessage.setText(sb.toString());
 	}
@@ -93,6 +93,11 @@ public class PnlFinished extends AbstractFunctionalPanel {
 			}
 			sb.append("<ul>");
 		}
+	}
+	
+	@Override
+	public boolean canNext() {
+		return false;
 	}
 
 	private JTextPane txtMessage = new JTextPane();
