@@ -25,10 +25,11 @@ import org.apache.poi.ddf.DefaultEscherRecordFactory;
 import org.apache.poi.ddf.EscherContainerRecord;
 import org.apache.poi.ddf.EscherRecord;
 import org.apache.poi.ddf.EscherRecordFactory;
+import org.apache.poi.ddf.EscherSpRecord;
 
 /**
  * Based on AbstractEscherRecordHolder from HSSF.
- *
+ * 
  * @author Squeeself
  */
 public final class EscherRecordHolder {
@@ -43,16 +44,15 @@ public final class EscherRecordHolder {
 		fillEscherRecords(data, offset, size);
 	}
 
-	private void fillEscherRecords(byte[] data, int offset, int size)
-	{
+	private void fillEscherRecords(byte[] data, int offset, int size) {
 		EscherRecordFactory recordFactory = new DefaultEscherRecordFactory();
 		int pos = offset;
-		while ( pos < offset + size)
-		{
+		while (pos < offset + size) {
 			EscherRecord r = recordFactory.createRecord(data, pos);
 			escherRecords.add(r);
 			int bytesRead = r.fillFields(data, pos, recordFactory);
-			pos += bytesRead + 1; // There is an empty byte between each top-level record in a Word doc
+			pos += bytesRead + 1; // There is an empty byte between each
+			// top-level record in a Word doc
 		}
 	}
 
@@ -75,43 +75,43 @@ public final class EscherRecordHolder {
 	}
 
 	/**
-	 * If we have a EscherContainerRecord as one of our
-	 *  children (and most top level escher holders do),
-	 *  then return that.
+	 * If we have a EscherContainerRecord as one of our children (and most top
+	 * level escher holders do), then return that.
 	 */
 	public EscherContainerRecord getEscherContainer() {
-		for(Iterator<EscherRecord> it = escherRecords.iterator(); it.hasNext();) {
+		for (Iterator<EscherRecord> it = escherRecords.iterator(); it.hasNext();) {
 			Object er = it.next();
-			if(er instanceof EscherContainerRecord) {
-				return (EscherContainerRecord)er;
+			if (er instanceof EscherContainerRecord) {
+				return (EscherContainerRecord) er;
 			}
 		}
 		return null;
 	}
 
 	/**
-	 * Descends into all our children, returning the
-	 *  first EscherRecord with the given id, or null
-	 *  if none found
+	 * Descends into all our children, returning the first EscherRecord with the
+	 * given id, or null if none found
 	 */
 	public EscherRecord findFirstWithId(short id) {
 		return findFirstWithId(id, getEscherRecords());
 	}
-	private static EscherRecord findFirstWithId(short id, List<EscherRecord> records) {
+
+	private static EscherRecord findFirstWithId(short id,
+			List<EscherRecord> records) {
 		// Check at our level
-		for(Iterator<EscherRecord> it = records.iterator(); it.hasNext();) {
+		for (Iterator<EscherRecord> it = records.iterator(); it.hasNext();) {
 			EscherRecord r = it.next();
-			if(r.getRecordId() == id) {
+			if (r.getRecordId() == id) {
 				return r;
 			}
 		}
 
 		// Then check our children in turn
-		for(Iterator<EscherRecord> it = records.iterator(); it.hasNext();) {
+		for (Iterator<EscherRecord> it = records.iterator(); it.hasNext();) {
 			EscherRecord r = it.next();
-			if(r.isContainerRecord()) {
+			if (r.isContainerRecord()) {
 				EscherRecord found = findFirstWithId(id, r.getChildRecords());
-				if(found != null) {
+				if (found != null) {
 					return found;
 				}
 			}
@@ -120,4 +120,40 @@ public final class EscherRecordHolder {
 		// Not found in this lot
 		return null;
 	}
+
+	public EscherContainerRecord getGroupShapeContainerWithShapeId(int id) {
+		return findFirstGroupShapeContainerWithId(id, getEscherRecords());
+	}
+
+	public EscherContainerRecord findFirstGroupShapeContainerWithId(int id,
+			List<EscherRecord> records) {
+		// find spgrContainer
+		for (EscherRecord record : records) {
+			if (record.getRecordId() == (short) 0xF003) {
+				EscherContainerRecord spgrContainer = (EscherContainerRecord) record;
+				EscherContainerRecord spContainer = (EscherContainerRecord) spgrContainer
+						.getChildById((short) 0xF004);
+
+				// check first shape record
+				EscherSpRecord sp = (EscherSpRecord) spContainer
+						.getChildById((short) 0xF00A);
+				if (sp != null && sp.getShapeId() == id) {
+					return spgrContainer;
+				}
+			}
+		} // end of finding spgrContainer
+
+		for (EscherRecord record : records) {
+			if (record.isContainerRecord()) {
+				EscherContainerRecord found = findFirstGroupShapeContainerWithId(
+						id, record.getChildRecords());
+				if (found != null) {
+					return found;
+				}
+			}
+		}
+
+		return null;
+	}
+
 }
