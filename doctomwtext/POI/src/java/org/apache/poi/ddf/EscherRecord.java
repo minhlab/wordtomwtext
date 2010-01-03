@@ -24,6 +24,8 @@ import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.text.html.Option;
+
 /**
  * The base abstract record from which all escher records are defined.  Subclasses will need
  * to define methods for serialization/deserialization and for determining the record size.
@@ -31,7 +33,8 @@ import java.util.List;
  * @author Glen Stampoultzis
  */
 public abstract class EscherRecord {
-    private short _options;
+    private short _version;
+    private short _instance;
     private short _recordId;
 
     /**
@@ -74,7 +77,9 @@ public abstract class EscherRecord {
      */
     protected int readHeader( byte[] data, int offset ) {
         EscherRecordHeader header = EscherRecordHeader.readHeader(data, offset);
-        _options = header.getOptions();
+        short _options = header.getOptions();
+        _version = (short) (_options & 0x0F);
+        _instance = (short) (_options >> 4);
         _recordId = header.getRecordId();
         return header.getRemainingBytes();
     }
@@ -85,22 +90,23 @@ public abstract class EscherRecord {
      * @return  true is this is a container field.
      */
     public boolean isContainerRecord() {
-        return (_options & (short)0x000f) == (short)0x000f;
+        return _version == (short)0x000f;
     }
 
     /**
      * @return The options field for this record.  All records have one.
      */
     public short getOptions() {
-        return _options;
+        return (short) (_instance << 4 + _version);
     }
 
     /**
      * Set the options this this record.  Container records should have the
      * last nibble set to 0xF.
      */
-    public void setOptions( short options ) {
-        _options = options;
+    public void setOptions( short _options ) {
+        _version = (short) (_options & 0x0F);
+        _instance = (short) (_options >> 4);
     }
 
     /**
@@ -222,13 +228,17 @@ public abstract class EscherRecord {
      */
     public abstract String getRecordName();
 
+    public short getVersion() {
+    	return _version;
+    }
+    
     /**
      * Returns the instance part of the option record.
      *
      * @return The instance part of the record
      */
     public short getInstance() {
-        return (short) ( _options >> 4 );
+        return _instance;
     }
 
     /**
@@ -236,6 +246,9 @@ public abstract class EscherRecord {
      */
     static class EscherRecordHeader
     {
+    	/**
+    	 * options = vesion ghép với instance
+    	 */
         private short options;
         private short recordId;
         private int remainingBytes;

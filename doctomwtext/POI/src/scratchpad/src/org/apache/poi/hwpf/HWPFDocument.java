@@ -52,6 +52,7 @@ import org.apache.poi.hwpf.model.io.HWPFFileSystem;
 import org.apache.poi.hwpf.model.io.HWPFOutputStream;
 import org.apache.poi.hwpf.usermodel.HWPFList;
 import org.apache.poi.hwpf.usermodel.Range;
+import org.apache.poi.hwpf.usermodel.Shape;
 import org.apache.poi.poifs.common.POIFSConstants;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
 import org.apache.poi.poifs.filesystem.DocumentEntry;
@@ -275,6 +276,12 @@ public final class HWPFDocument extends POIDocument
     _pictures = new PicturesTable(this, _dataStream, _mainStream, _fspa, _dgg);
     // And the art shapes stream
     _officeArts = new ShapesTable(_tableStream, _fib);
+    for (Object obj : _officeArts.getAllShapes()) {
+		if (obj instanceof Shape) {
+			Shape shape = (Shape) obj;
+			shape.setSpgrContainer(_dgg.getGroupShapeContainerWithShapeId(shape.getId()));
+		}
+	}
 
     _st = new SectionTable(_mainStream, _tableStream, _fib.getFcPlcfsed(), _fib.getLcbPlcfsed(), fcMin, _tpt, _cpSplit);
     _ss = new StyleSheet(_tableStream, _fib.getFcStshf());

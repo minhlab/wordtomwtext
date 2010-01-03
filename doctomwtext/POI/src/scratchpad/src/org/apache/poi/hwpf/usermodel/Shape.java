@@ -17,11 +17,17 @@
 
 package org.apache.poi.hwpf.usermodel;
 
+import java.awt.image.BufferedImage;
+
+import org.apache.poi.ddf.EscherContainerRecord;
+import org.apache.poi.ddf.converter.EscherRasterConverter;
 import org.apache.poi.hwpf.model.GenericPropertyNode;
 import org.apache.poi.util.LittleEndian;
 
 public final class Shape {
         int _id, _left, _right, _top, _bottom;
+        private EscherContainerRecord spgrContainer = null;
+        
         /**
          * true if the Shape bounds are within document (for
          * example, it's false if the image left corner is outside the doc, like for
@@ -68,7 +74,24 @@ public final class Shape {
                 return _bottom - _top + 1;
         }
 
+        /**
+         * @return true if the Shape bounds are within document (for
+         * example, it's false if the image left corner is outside the doc, like for
+         * embedded documents)
+         */
         public boolean isWithinDocument() {
                 return _inDoc;
         }
+
+		public void setSpgrContainer(EscherContainerRecord spgrContainer) {
+			this.spgrContainer = spgrContainer;
+		}
+
+		public EscherContainerRecord getSpgrContainer() {
+			return spgrContainer;
+		}
+		
+		public BufferedImage toImage() {
+			return new EscherRasterConverter().convert(spgrContainer);
+		}
 }
