@@ -20,7 +20,7 @@ package org.apache.poi.hwpf.usermodel;
 import java.awt.image.BufferedImage;
 
 import org.apache.poi.ddf.EscherContainerRecord;
-import org.apache.poi.ddf.converter.EscherRasterConverter;
+import org.apache.poi.ddf.converter.EscherSvgConverter;
 import org.apache.poi.hwpf.model.GenericPropertyNode;
 import org.apache.poi.util.LittleEndian;
 
@@ -91,7 +91,7 @@ public final class Shape {
 			return spgrContainer;
 		}
 		
-		public BufferedImage toImage() {
-			return new EscherRasterConverter().convert(spgrContainer);
+		public String toSvg() {
+			return new EscherSvgConverter().convert(spgrContainer);
 		}
 }
