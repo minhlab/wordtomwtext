@@ -1,15 +1,33 @@
 package org.apache.poi.ddf.converter;
 
-class Autoshape {
+public class Autoshape {
 
-	public final String[][] calls;
+	public int id;
+
+	public String name;
+
+	public String internalName;
+
+	public String[][] calls;
+
+	public String[][] formulas;
+
+	public Autoshape() {
+	}
 	
-	public final String[][] formulas;
-
-	public Autoshape(String[][] calls, String[][] formulas) {
+	public Autoshape(int id, String name, String internalName,
+			String[][] calls, String[][] formulas) {
 		super();
+		this.id = id;
+		this.name = name;
+		this.internalName = internalName;
 		this.calls = calls;
 		this.formulas = formulas;
 	}
-	
+
+	@Override
+	public String toString() {
+		return name + " (" + internalName + ", " + id + ")";
+	}
+
 }
