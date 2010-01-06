@@ -1,0 +1,1241 @@
+--- !spec
+path: "m,l,21600r21600,l21600,xe"
+name: Rectangle
+internalName: Rect
+--- !spec
+name: Parallelogram
+internalName: Parallelogram
+path: "m@0,l,21600@1,21600,21600,xe"
+formulas: |
+  val #0
+  sum width 0 #0
+  prod #0 1 2
+  sum width 0 @2
+  mid #0 width
+  mid @1 0
+  prod height width #0
+  prod @6 1 2
+  sum height 0 @7
+  prod width 1 2
+  sum #0 0 @9
+  if @10 @8 0
+  if @10 @7 height
+adjustments: 5400
+connector: "@4,0;10800,@11;@3,10800;@5,21600;10800,@12;@2,10800"
+Text Box Rectangle  1800,1800,19800,19800;8100,8100,13500,13500;10800,10800,10800,10800
+Handles             position="#0,topLeft" xrange="0,21600"
+--- !spec
+name: Trapezoid
+internalName: Trapezoid
+path: "m,l@0,21600@1,21600,21600,xe"
+formulas: |
+  val #0
+  sum width 0 #0
+  prod #0 1 2
+  sum width 0 @2
+  mid #0 width
+  mid @1 0
+  prod height width #0
+  prod @6 1 2
+  sum height 0 @7
+  prod width 1 2
+  sum #0 0 @9
+  if @10 @8 0
+  if @10 @7 height
+adjustments: 5400
+connector: "@3,10800;10800,21600;@2,10800;10800,0"
+Text Box Rectangle  1800,1800,19800,19800;4500,4500,17100,17100;7200,7200,14400,14400
+  position="#0,bottomRight"; xrange="0,10800”
+Handles
+--- !spec
+name: Diamond
+internalName: Diamond
+path: "m10800,l,10800,10800,21600,21600,10800xe"
+Text Box Rectangle  5400,5400,16200,16200
+--- !spec
+name: Octagon
+internalName: Octagon
+path: "m@0,l0@0,0@2@0,21600@1,21600,21600@2,21600@0@1,xe"
+formulas: |
+  val #0
+  sum width 0 #0
+  sum height 0 #0
+  prod @0 2929 10000
+  sum width 0 @3
+  sum height 0 @3
+  val width
+  val height
+  prod width 1 2
+  prod height 1 2
+adjustments: 6326
+connector: "@8,0;0,@9;@8,@7;@6,@9"
+Text Box Rectangle  0,0,21600,21600;2700,2700,18900,18900;5400,5400,16200,16200
+  position="#0,topLeft" switch=“true” xrange="0,10800"
+Handles
+Limo                10800,10800
+--- !spec
+name: Isosceles Triangle
+internalName: IsoscelesTriangle
+path: "m@0,l,21600r21600,xe"
+formulas: |
+  val #0
+  prod #0 1 2
+  sum @1 10800 0
+adjustments: 10800
+connector: "@0,0;@1,10800;0,21600;10800,21600;21600,21600;@2,10800"
+Text Box Rectangle  0,10800,10800,18000;5400,10800,16200,18000;10800,10800,21600,18000;0,
+  7200,7200,21600;7200,7200,14400,21600;14400,7200,21600,21600
+Handles             position="#0,topLeft" xrange="0,21600"
+--- !spec
+name: Right Triangle
+internalName: RightTriangle
+path: "m,l,21600r21600,xe"
+connector: "0,0;0,10800;0,21600;10800,21600;21600,21600;10800,10800"
+Text Box Rectangle  1800,12600,12600,19800
+--- !spec
+name: Hexagon
+internalName: Hexagon
+path: m@0,l,10800@0,21600@1,21600,21600,10800@1,xe
+formulas: |
+  val #0
+  sum width 0 #0
+  sum height 0 #0
+  prod @0 2929 10000
+  sum width 0 @3
+  sum height 0 @3
+adjustments: 5400
+Text Box Rectangle  1800,1800,19800,19800;3600,3600,18000,18000;6300,6300,15300,15300
+Handles             position="#0,topLeft" xrange="0,10800"
+--- !spec
+name: Cross
+internalName: Plus
+path: "m@0,l@0@0,0@0,0@2@0@2@0,21600@1,21600@1@2,21600@2,21600@0@1@0@1,xe"
+formulas: |
+  val #0
+  sum width 0 #0
+  sum height 0 #0
+  prod @0 2929 10000
+  sum width 0 @3
+  sum height 0 @3
+  val width
+  val height
+  prod width 1 2
+  prod height 1 2
+adjustments: 5400
+connector: "@8,0;0,@9;@8,@7;@6,@9"
+Text Box Rectangle  0,0,21600,21600;5400,5400,16200,16200;10800,10800,10800,10800
+  position="#0,topLeft" switch=“true” xrange="0,10800"
+Handles
+Limo                10800,10800
+--- !spec
+name: Regular Pentagon
+internalName: Pentagon
+path: "m10800,l,8259,4200,21600r13200,l21600,8259xe"
+connector: "10800,0;0,8259;4200,21600;10800,21600;17400,21600;21600,8259"
+Connector Angles    270,180,90,90,90,0
+Text Box Rectangle  4200,5077,17400,21600
+--- !spec
+name: Can
+internalName: Can
+path: "m10800,qx0@1l0@2qy10800,21600,21600@2l21600@1qy10800,xem0@1qy 10800@0,21600@1nfe"
+formulas: |
+  val #0
+  prod #0 1 2
+  sum height 0 @1
+adjustments: 5400
+connector: "10800,@0;10800,0;0,10800;10800,21600;21600,10800"
+Connector Angles    270,270,180,90,0
+Text Box Rectangle  0,@0,21600,@2
+Handles             position="center,#0" yrange="0,10800"
+--- !spec
+name: Cube
+internalName: Cube
+path: "m@0,l0@0,,21600@1,21600,21600@2,21600,xem0@0nfl@1@0,21600,em@ 1@0nfl@1,21600e"
+formulas: |
+  val #0
+  sum width 0 #0
+  sum height 0 #0
+  mid height #0
+  prod @1 1 2
+  prod @2 1 2
+  mid width #0
+adjustments: 5400
+connector: "@6,0;@4,@0;0,@3;@4,21600;@1,@3;21600,@5"
+Connector Angles    270,270,180,90,0,0
+Text Box Rectangle  0,@0,@1,21600
+  position="topLeft,#0" switch=“true” yrange="0,21600"
+Handles
+Limo                10800,10800
+--- !spec
+name: Bevel
+internalName: Bevel
+path: "m,l,21600r21600,l21600,xem@0@0nfl@0@2@1@2@1@0xem,nfl@0@0em ,21600nfl@0@2em21600,21600nfl@1@2em21600,nfl@1@0e"
+formulas: |
+  val #0
+  sum width 0 #0
+  sum height 0 #0
+  prod width 1 2
+  prod height 1 2
+  prod #0 1 2
+  prod #0 3 2
+  sum @1 @5 0
+  sum @2 @5 0
+adjustments: 2700
+connector: "0,@4;@0,@4;@3,21600;@3,@2;21600,@4;@1,@4;@3,0;@3,@0"
+Text Box Rectangle  @0,@0,@1,@2
+  position="#0,topLeft" switch=“true” xrange="0,10800"
+Handles
+Limo                10800,10800
+--- !spec
+name: Folded Corner
+internalName: FoldedCorner
+path: "m,l,21600@0,21600,21600@0,21600,xem@0,21600nfl@3@5c@7@9@11@13,21600@0e"
+formulas: |
+  val #0
+  sum 21600 0 @0
+  prod @1 8481 32768
+  sum @2 @0 0
+  prod @1 1117 32768
+  sum @4 @0 0
+  prod @1 11764 32768
+  sum @6 @0 0
+  prod @1 6144 32768
+  sum @8 @0 0
+  prod @1 20480 32768
+  sum @10 @0 0
+  prod @1 6144 32768
+  sum @12 @0 0
+adjustments: 18900
+Text Box Rectangle  0,0,21600,@13
+Handles             position="#0,bottomRight" xrange="10800,21600"
+--- !spec
+name: Smiley Face
+internalName: SmileyFace
+path: "m10800,qx,10800,10800,21600,21600,10800,10800,xem7340,6445qx6215,7570,7340,8695,8465,7570,7340,6445xnfem14260,6445qx13135,7570,14260,86"
+  95,15385,7570,14260,6445xnfem4960@0c8853@3,12747@3,16640@0nfe
+formulas: |
+  sum 33030 0 #0
+  prod #0 4 3
+  prod @0 1 3
+  sum @1 0 @2
+adjustments: 17520
+connector: "10800,0;3163,3163;0,10800;3163,18437;10800,21600;18437,18437;21600,10800;18437,3163"
+Text Box Rectangle  3163,3163,18437,18437
+Handles             position="center,#0" yrange="15510,17520
+--- !spec
+name: Donut
+internalName: Donut
+path: "m,10800qy10800,,21600,10800,10800,21600,,10800xm@0,10800qy10800@2@1,10800,10800@0@0,10800xe"
+formulas: |
+  val #0
+  sum width 0 #0
+  sum height 0 #0
+  prod @0 2929 10000
+  sum width 0 @3
+  sum height 0 @3
+adjustments: 5400
+connector: "10800,0;3163,3163;0,10800;3163,18437;10800,21600;18437,18437;21600,10800;18437,3163"
+Text Box Rectangle  3163,3163,18437,18437
+Handles             position="#0,center" xrange="0,10800"
+--- !spec
+name: “No” Symbol
+internalName: NoSmoking
+path: "m,10800qy10800,,21600,10800,10800,21600,,10800xar@0@0@16@16@12@14@15@13xar@0@0@16@16@13@15@14@12xe"
+formulas: |
+  val #0
+  prod @0 2 1
+  sum 21600 0 @1
+  prod @2 @2 1
+  prod @0 @0 1
+  sum @3 0 @4
+  prod @5 1 8
+  sqrt @6
+  prod @4 1 8
+  sqrt @8
+  sum @7 @9 0
+  sum @7 0 @9
+  sum @10 10800 0
+  sum 10800 0 @10
+  sum @11 10800 0
+  sum 10800 0 @11
+  sum 21600 0 @0
+adjustments: 2700
+connector: "10800,0;3163,3163;0,10800;3163,18437;10800,21600;18437,18437;21600,10800;18437,3163"
+Text Box Rectangle  3163,3163,18437,18437
+Handles             position="#0,center" xrange="0,7200"
+--- !spec
+name: Block Arc
+internalName: BlockArc
+path: "al10800,10800@0@0@2@14,10800,10800,10800,10800@3@15xe"
+formulas: |
+  val #1
+  val #0
+  sum 0 0 #0
+  sumangle #0 0 180
+  sumangle #0 0 90
+  prod @4 2 1
+  sumangle #0 90 0
+  prod @6 2 1
+  abs #0
+  sumangle @8 0 90
+  if @9 @7 @5
+  sumangle @10 0 360
+  if @10 @11 @10
+  sumangle @12 0 360
+  if @12 @13 @12
+  sum 0 0 @14
+  val 10800
+  sum 10800 0 #1
+  prod #1 1 2
+  sum @18 5400 0
+  cos @19 #0
+  sin @19 #0
+  sum @20 10800 0
+  sum @21 10800 0
+  sum 10800 0 @20
+  sum #1 10800 0
+  if @9 @17 @25
+  if @9 0 21600
+  cos 10800 #0
+  sin 10800 #0
+  sin #1 #0
+  sum @28 10800 0
+  sum @29 10800 0
+  sum @30 10800 0
+  if @4 0 @31
+  if #0 @34 0
+  if @6 @35 @31
+  sum 21600 0 @36
+  if @4 0 @33
+  if #0 @38 @32
+  if @6 @39 0
+  if @4 @32 21600
+  if @6 @41 @33
+adjustments: 11796480,5400
+connector: "10800,@27;@22,@23;10800,@26;@24,@23"
+Text Box Rectangle  @36,@40,@37,@42
+Handles             position="#1,#0" polar="10800,10800" radiusrange="0,10800"
+--- !spec
+name: Heart
+internalName: Heart
+path: "m10860,2187c10451,1746,9529,1018,9015,730,7865,152,6685,,5415,,4175,152,2995,575,1967,1305,1150,2187,575,3222,242,4220,,5410,242,6560,575,7597l10860,21600,20995,7597v485,-1037,605,-2187,485,-3377c21115,3222,20420,2187,19632,1305,18575,575,17425,152,16275,,15005,,13735,152,12705,730v-529,288,-1451,1016,-1845,1457xe"
+connector: "10860,2187;2928,10800;10860,21600;18672,10800"
+Connector Angles    270,180,90,0
+Text Box Rectangle  5037,2277,16557,13677
+--- !spec
+name: Lightning Bolt
+internalName: LightningBolt
+path: "m8472,l,3890,7602,8382,5022,9705r7200,4192l10012,14915r11588,6685l14767,12877r1810,-870l11050,6797r1810,-717xe"
+connector: "8472,0;0,3890;5022,9705;10012,14915;21600,21600;16577,12007;12860,6080"
+Connector Angles    270,270,180,180,90,0,0
+Text Box Rectangle  8757,7437,13917,14277
+--- !spec
+name: Sun
+internalName: Sun
+path: "m21600,10800l@15@14@15@18xem18436,3163l@17@12@16@13xem10800,l@14@10@18@10xem3163,3163l@12@13@13@12xem,10800l@10@18@10@14xem3163,18436l@13@16@12@17xem10800,21600l@18@15@14@15xem18436,18436l@16@17@17@16xem10800@19qx@19,10800,10800@20@20,10800,10800@19xe"
+Guide Formulas     sum 10800 0 #0
+                   prod @0 30274 32768
+                   prod @0 12540 32768
+                   sum @1 10800 0
+                   sum @2 10800 0
+                   sum 10800 0 @1
+                   sum 10800 0 @2
+                   prod @0 23170 32768
+                   sum @7 10800 0
+                   sum 10800 0 @7
+                   prod @5 3 4
+                   prod @6 3 4
+                   sum @10 791 0
+                   sum @11 791 0
+                   sum @11 2700 0
+                   sum 21600 0 @10
+                   sum 21600 0 @12
+                   sum 21600 0 @13
+                   sum 21600 0 @14
+                   val #0
+                   sum 21600 0 #0
+Adjustment Values  5400
+Text Box Rectangle @9,@9,@8,@8
+Handles            position="#0,center" xrange="2700,10125"
+--- !spec
+name: Moon
+internalName: Moon
+path: "m21600,qx,10800,21600,21600wa@0@10@6@11,21600,21600,21600,xe"
+formulas: |
+  val #0
+  sum 21600 0 #0
+  prod #0 #0 @1
+  prod 21600 21600 @1
+  prod @3 2 1
+  sum @4 0 @2
+  sum @5 0 #0
+  prod @5 1 2
+  sum @7 0 #0
+  prod @8 1 2
+  sum 10800 0 @9
+  sum @9 10800 0
+  prod #0 9598 32768
+  sum 21600 0 @12
+  ellipse @13 21600 10800
+  sum 10800 0 @14
+  sum @14 10800 0
+adjustments: 10800
+connector: "21600,0;0,10800;21600,21600;@0,10800"
+Connector Angles    270,180,90,0
+Text Box Rectangle  @12,@15,@0,@16
+Handles             position="#0,center" xrange="0,18900
+--- !spec
+name: Arc
+internalName: Arc
+path: "wr-21600,,21600,43200,,,21600,21600nfewr-21600,,21600,43200,,,21600,21600l,21600nsxe"
+formulas: |
+  val #2
+  val #3
+  val #4
+adjustments: -5898240,,,21600,21600
+connector: "0,0;21600,21600;0,21600"
+Handles             position="@2,#0" polar="@0,@1
+  position="@2,#1" polar="@0,@1
+--- !spec
+name: Double Bracket
+internalName: BracketPair
+path: "m@0,nfqx0@0l0@2qy@0,21600em@1,nfqx21600@0l21600@2qy@1,21600em@0,nsqx0@0l0@2qy@0,21600l@1,21600qx21600@2l21600@0qy@1,xe"
+formulas: |
+  val #0
+  sum width 0 #0
+  sum height 0 #0
+  prod @0 2929 10000
+  sum width 0 @3
+  sum height 0 @3
+  val width
+  val height
+  prod width 1 2
+  prod height 1 2
+adjustments: 3600
+connector: "@8,0;0,@9;@8,@7;@6,@9"
+Text Box Rectangle  @3,@3,@4,@5
+  position="#0,topLeft" switch=“true” xrange="0,10800"
+Handles
+Limo                10800,10800
+--- !spec
+name: Double Brace
+internalName: BracePair
+path: "m@9,nfqx@0@0l@0@7qy0@4@0@8l@0@6qy@9,21600em@10,nfqx@5@0l@5@7qy21600@4@5@8l@5@6qy@10,21600em@9,nsqx@0@0l@0@"
+  7qy0@4@0@8l@0@6qy@9,21600l@10,21600qx@5@6l@5@8qy21600@4
+  @5@7l@5@0qy@10,xe
+formulas: |
+  val #0
+  val width
+  val height
+  prod width 1 2
+  prod height 1 2
+  sum width 0 #0
+  sum height 0 #0
+  sum @4 0 #0
+  sum @4 #0 0
+  prod #0 2 1
+  sum width 0 @9
+  prod #0 9598 32768
+  sum height 0 @11
+  sum @11 #0 0
+  sum width 0 @13
+adjustments: 1800
+connector: "@3,0;0,@4;@3,@2;@1,@4"
+Text Box Rectangle  @13,@11,@14,@12
+  position="topLeft,#0" switch=“true” yrange="0,5400"
+Handles
+Limo                10800,10800
+--- !spec
+name: Plaque
+internalName: Plaque
+path: "m@0,qy0@0l0@2qx@0,21600l@1,21600qy21600@2l21600@0qx@1,xe"
+formulas: |
+  val #0
+  sum width 0 #0
+  sum height 0 #0
+  prod @0 7071 10000
+  sum width 0 @3
+  sum height 0 @3
+  val width
+  val height
+  prod width 1 2
+  prod height 1 2
+adjustments: 3600
+connector: "@8,0;0,@9;@8,@7;@6,@9"
+Text Box Rectangle  @3,@3,@4,@5
+  position="#0,topLeft" switch=“true” xrange="0,10800"
+Handles
+Limo                10800,10800
+--- !spec
+name: Left Bracket
+internalName: LeftBracket
+path: "m21600,qx0@0l0@1qy21600,21600e"
+formulas: |
+  val #0
+  sum 21600 0 #0
+  prod #0 9598 32768
+  sum 21600 0 @2
+adjustments: 1800
+connector: "21600,0;0,10800;21600,21600"
+Text Box Rectangle  6326,@2,21600,@3
+Handles             position="topLeft,#0" yrange="0,10800"
+--- !spec
+name: Right Bracket
+internalName: RightBracket
+path: "m,qx21600@0l21600@1qy,21600e"
+formulas: |
+  val #0
+  sum 21600 0 #0
+  prod #0 9598 32768
+  sum 21600 0 @2
+adjustments: 1800
+connector: "0,0;0,21600;21600,10800"
+Text Box Rectangle  0,@2,15274,@3
+Handles             position="bottomRight,#0" yrange="0,10800"
+--- !spec
+name: Left Brace
+internalName: LeftBrace
+path: "m21600,qx10800@0l10800@2qy0@11,10800@3l10800@1qy21600,21600e"
+formulas: |
+  val #0
+  sum 21600 0 #0
+  sum #1 0 #0
+  sum #1 #0 0
+  prod #0 9598 32768
+  sum 21600 0 @4
+  sum 21600 0 #1
+  min #1 @6
+  prod @7 1 2
+  prod #0 2 1
+  sum 21600 0 @9
+  val #1
+adjustments: 1800,10800
+connector: "21600,0;0,10800;21600,21600"
+Text Box Rectangle  13963,@4,21600,@5
+Handles             position="center,#0" yrange="0,@8
+  position="topLeft,#1" yrange="@9,@10
+--- !spec
+name: Right Brace
+internalName: RightBrace
+path: "m,qx10800@0l10800@2qy21600@11,10800@3l10800@1qy,21600e"
+formulas: |
+  val #0
+  sum 21600 0 #0
+  sum #1 0 #0
+  sum #1 #0 0
+  prod #0 9598 32768
+  sum 21600 0 @4
+  sum 21600 0 #1
+  min #1 @6
+  prod @7 1 2
+  prod #0 2 1
+  sum 21600 0 @9
+  val #1
+adjustments: 1800,10800
+connector: "0,0;21600,@11;0,21600"
+Text Box Rectangle  0,@4,7637,@5
+Handles             position="center,#0" yrange="0,@8
+  position="bottomRight,#1" yrange="@9,@10
+--- !spec
+name: Right Arrow
+internalName: RightArrow
+path: "m@0,l@0@1,0@1,0@2@0@2@0,21600,21600,10800xe"
+formulas: |
+  val #0
+  val #1
+  sum height 0 #1
+  sum 10800 0 #1
+  sum width 0 #0
+  prod @4 @3 10800
+  sum width 0 @5
+adjustments: 16200,5400
+connector: "@0,0;0,10800;@0,21600;21600,10800"
+Connector Angles    270,180,90,0
+Text Box Rectangle  0,@1,@6,@2
+Handles             position="#0,#1" xrange="0,21600" yrange="0,10800"
+--- !spec
+name: Left Arrow
+internalName: LeftArrow
+path: "m@0,l@0@1,21600@1,21600@2@0@2@0,21600,,10800xe"
+formulas: |
+  val #0
+  val #1
+  sum 21600 0 #1
+  prod #0 #1 10800
+  sum #0 0 @3
+adjustments: 5400,5400
+connector: "@0,0;0,10800;@0,21600;21600,10800"
+Connector Angles    270,180,90,0
+Text Box Rectangle  @4,@1,21600,@2
+Handles             position="#0,#1" xrange="0,21600" yrange="0,10800"
+--- !spec
+name: Up Arrow
+internalName: UpArrow
+path: "m0@0l@1@0@1,21600@2,21600@2@0,21600@0,10800,xe"
+formulas: |
+  val #0
+  val #1
+  sum 21600 0 #1
+  prod #0 #1 10800
+  sum #0 0 @3
+adjustments: 5400,5400
+connector: "10800,0;0,@0;10800,21600;21600,@0"
+Connector Angles    270,180,90,0
+Text Box Rectangle  @1,@4,@2,21600
+Handles             position="#1,#0" xrange="0,10800" yrange="0,21600"
+--- !spec
+name: Down Arrow
+internalName: DownArrow
+path: "m0@0l@1@0@1,0@2,0@2@0,21600@0,10800,21600xe"
+formulas: |
+  val #0
+  val #1
+  sum height 0 #1
+  sum 10800 0 #1
+  sum width 0 #0
+  prod @4 @3 10800
+  sum width 0 @5
+adjustments: 16200,5400
+connector: "10800,0;0,@0;10800,21600;21600,@0"
+Connector Angles    270,180,90,0
+Text Box Rectangle  @1,0,@2,@6
+Handles             position="#1,#0" xrange="0,10800" yrange="0,21600"
+--- !spec
+name: Left-Right Arrow
+internalName: LeftRightArrow
+path: "m,10800l@0,21600@0@3@2@3@2,21600,21600,10800@2,0@2@1@0@1@0,xe"
+formulas: |
+  val #0
+  val #1
+  sum 21600 0 #0
+  sum 21600 0 #1
+  prod #0 #1 10800
+  sum #0 0 @4
+  sum 21600 0 @5
+adjustments: 4320,5400
+connector: "@2,0;10800,@1;@0,0;0,10800;@0,21600;10800,@3;@2,21600;21600,10800"
+Connector Angles    270,270,270,180,90,90,90,0
+Text Box Rectangle  @5,@1,@6,@3
+Handles             position="#0,#1" xrange="0,10800" yrange="0,10800"
+--- !spec
+name: Up-Down Arrow
+internalName: UpDownArrow
+path: "m10800,l21600@0@3@0@3@2,21600@2,10800,21600,0@2@1@2@1@0,0@0xe"
+formulas: |
+  val #1
+  val #0
+  sum 21600 0 #1
+  sum 21600 0 #0
+  prod #1 #0 10800
+  sum #1 0 @4
+  sum 21600 0 @5
+adjustments: 5400,4320
+connector: "10800,0;0,@0;@1,10800;0,@2;10800,21600;21600,@2;@3,10800;21600,@0"
+Connector Angles    270,180,180,180,90,0,0,0
+Text Box Rectangle  @1,@5,@3,@6
+Handles             position="#0,#1" xrange="0,10800" yrange="0,10800"
+--- !spec
+name: Quad Arrow
+internalName: QuadArrow
+path: "m10800,l@0@2@1@2@1@1@2@1@2@0,,10800@2@3@2@4@1@4@1@5@0@5,10800,21600@3@5@4@5@4@4@5@4@5@3,21600,10800@5"
+  @0@5@1@4@1@4@2@3@2xe
+formulas: |
+  val #0
+  val #1
+  val #2
+  sum 21600 0 #0
+  sum 21600 0 #1
+  sum 21600 0 #2
+  sum #0 0 10800
+  sum #1 0 10800
+  prod @7 #2 @6
+  sum 21600 0 @8
+adjustments: 6480,8640,4320
+Text Box Rectangle  @8,@1,@9,@4;@1,@8,@4,@9
+Handles             position="#0,topLeft" xrange="@2,@1
+  position="#1,#2" xrange="@0,10800" yrange="0,@0
+--- !spec
+name: Left-Right-Up Arrow
+internalName: LeftRightUpArrow
+path: "m10800,l@0@2@1@2@1@6@7@6@7@5,0@8@7,21600@7@9@10@9@10,21600,21600@8@10@5@10@6@4@6@4@2@3@2xe"
+formulas: |
+  val #0
+  val #1
+  val #2
+  sum 21600 0 #0
+  sum 21600 0 #1
+  prod @0 21600 @3
+  prod @1 21600 @3
+  prod @2 @3 21600
+  prod 10800 21600 @3
+  prod @4 21600 @3
+  sum 21600 0 @7
+  sum @5 0 @8
+  sum @6 0 @8
+  prod @12 @7 @11
+  sum 21600 0 @13
+  sum @0 0 10800
+  sum @1 0 10800
+  prod @2 @16 @15
+adjustments: 6480,8640,6171
+connector: "10800,0;0,@8;10800,@9;21600,@8"
+Connector Angles    270,180,90,0
+Text Box Rectangle  @13,@6,@14,@9;@1,@17,@4,@9
+Handles             position="#0,topLeft" xrange="@2,@1
+  position="#1,#2" xrange="@0,10800" yrange="0,@5
+--- !spec
+name: Bent Arrow
+internalName: BentArrow
+path: "m21600,6079l@0,0@0@1,12427@1qx,12158l,21600@4,21600@4,12158qy12427@2l@0@2@0,12158xe"
+formulas: |
+  val #0
+  val #1
+  sum 12158 0 #1
+  sum @2 0 #1
+  prod @3 32768 32059
+  prod @4 1 2
+  sum 21600 0 #0
+  prod @6 #1 6079
+  sum @7 #0 0
+adjustments: Connector Angles
+connector: "@0,0;@0,12158;@5,21600;21600,6079"
+Connector Angles    270,90,90,0
+Text Box Rectangle  12427,@1,@8,@2;0,12158,@4,21600
+Handles             position="#0,#1" xrange="12427,21600" yrange="0,6079"
+--- !spec
+name: U-Turn Arrow
+internalName: UturnArrow
+path: "m15662,14285l21600,8310r-2970,qy9250,,,8485l,21600r6110,l6110,8310qy8907,5842l9725,5842qx12520,8310l9725,8310xe"
+connector: "9250,0;3055,21600;9725,8310;15662,14285;21600,8310"
+Connector Angles    270,90,90,90,0
+Text Box Rectangle  0,8310,6110,21600
+--- !spec
+name: Left-Up Arrow
+internalName: LeftUpArrow
+path: "m@4,l@0@2@5@2@5@5@2@5@2@0,0@4@2,21600@2@1@1@1@1@2,21600@2xe"
+formulas: |
+  val #0
+  val #1
+  val #2
+  prod #0 1 2
+  sum @3 10800 0
+  sum 21600 #0 #1
+  sum #1 #2 0
+  prod @6 1 2
+  prod #1 2 1
+  sum @8 0 21600
+  sum @5 0 @4
+  sum #0 0 @4
+  prod @2 @10 @11
+adjustments: 9257,18514,6171
+connector: "@4,0;@0,@2;@2,@0;0,@4;@2,21600;@7,@1;@1,@7;21600,@2"
+Connector Angles    270,180,270,180,90,90,0,0
+Text Box Rectangle  @12,@5,@1,@1;@5,@12,@1,@1
+Handles             position="#0,topLeft" xrange="@2,@9
+  position="#1,#2" xrange="@4,21600" yrange="0,@0
+--- !spec
+name: Bent-Up Arrow
+internalName: BentUpArrow
+path: "m@4,l@0@2@5@2@5@12,0@12,,21600@1,21600@1@2,21600@2xe"
+formulas: |
+  val #0
+  val #1
+  val #2
+  prod #0 1 2
+  sum @3 10800 0
+  sum 21600 #0 #1
+  sum #1 #2 0
+  prod @6 1 2
+  prod #1 2 1
+  sum @8 0 21600
+  prod 21600 @0 @1
+  prod 21600 @4 @1
+  prod 21600 @5 @1
+  prod 21600 @7 @1
+  prod #1 1 2
+  sum @5 0 @4
+  sum @0 0 @4
+  prod @2 @15 @16
+adjustments: 9257,18514,7200
+connector: "@4,0;@0,@2;0,@11;@14,21600;@1,@13;21600,@2"
+Connector Angles    270,180,180,90,0,0
+Text Box Rectangle  0,@12,@1,21600;@5,@17,@1,21600
+Handles             position="#0,topLeft" xrange="@2,@9
+  position="#1,#2" xrange="@4,21600" yrange="0,@0
+--- !spec
+name: Curved Right Arrow
+internalName: CurvedRightArrow
+path: "r,0@23@3@22,,0@4,0@15@23@1,0@7@2@13l@2@14@22@8@2@12wa,0@23@3@2@11@26@17,0@15@23@1@26@17@22@15xear,0@23@3,"
+  0@4@26@17nfe
+formulas: |
+  val #0
+  val #1
+  val #2
+  sum #0 width #1
+  prod @3 1 2
+  sum #1 #1 width
+  sum @5 #1 #0
+  prod @6 1 2
+  mid width #0
+  sum height 0 #2
+  ellipse @9 height @4
+  sum @4 @10 0
+  sum @11 #1 width
+  sum @7 @10 0
+  sum @12 width #0
+  sum @5 0 #0
+  prod @15 1 2
+  mid @4 @7
+  sum #0 #1 width
+  prod @18 1 2
+  sum @17 0 @19
+  val width
+  val height
+  prod height 2 1
+  sum @17 0 @4
+  ellipse @24 @4 height
+  sum height 0 @25
+  sum @8 128 0
+  prod @5 1 2
+  sum @5 0 128
+  sum #0 @17 @12
+  ellipse @20 @4 height
+  sum width 0 #0
+  prod @32 1 2
+  prod height height 1
+  prod @9 @9 1
+  sum @34 0 @35
+  sqrt @36
+  sum @37 height 0
+  prod width height @38
+  sum @39 64 0
+  prod #0 1 2
+  ellipse @33 @41 height
+  sum height 0 @42
+  sum @43 64 0
+  prod @4 1 2
+  sum #1 0 @45
+  prod height 4390 32768
+  prod height 28378 32768
+adjustments: 12960,19440,14400
+connector: "0,@17;@2,@14;@22,@8;@2,@12;@22,@16"
+Connector Angles    180,90,0,0,0
+Text Box Rectangle  @47,@45,@48,@46
+Handles             position="bottomRight,#0" yrange="@40,@29
+  position="bottomRight,#1" yrange="@27,@21
+  position="#2,bottomRight" xrange="@44,@22
+--- !spec
+name: Curved Left Arrow
+internalName: CurvedLeftArrow
+path: "wr@22,0@21@3,,0@21@4@22@14@21@1@21@7@2@12l@2@13,0@8@2@11at@22,0@21@3@2@10@24@16@22@14@21@1@24@16,0@14x"
+  ear@22@14@21@1@21@7@24@16nfe
+formulas: |
+  val #0
+  val #1
+  val #2
+  sum #0 width #1
+  prod @3 1 2
+  sum #1 #1 width
+  sum @5 #1 #0
+  prod @6 1 2
+  mid width #0
+  ellipse #2 height @4
+  sum @4 @9 0
+  sum @10 #1 width
+  sum @7 @9 0
+  sum @11 width #0
+  sum @5 0 #0
+  prod @14 1 2
+  mid @4 @7
+  sum #0 #1 width
+  prod @17 1 2
+  sum @16 0 @18
+  val width
+  val height
+  sum 0 0 height
+  sum @16 0 @4
+  ellipse @23 @4 height
+  sum @8 128 0
+  prod @5 1 2
+  sum @5 0 128
+  sum #0 @16 @11
+  sum width 0 #0
+  prod @29 1 2
+  prod height height 1
+  prod #2 #2 1
+  sum @31 0 @32
+  sqrt @33
+  sum @34 height 0
+  prod width height @35
+  sum @36 64 0
+  prod #0 1 2
+  ellipse @30 @38 height
+  sum @39 0 64
+  prod @4 1 2
+  sum #1 0 @41
+  prod height 4390 32768
+  prod height 28378 32768
+adjustments: 12960,19440,7200
+connector: "0,@15;@2,@11;0,@8;@2,@13;@21,@16"
+Connector Angles    180,180,180,90,0
+Text Box Rectangle  @43,@41,@44,@42
+Handles             position="topLeft,#0" yrange="@37,@27
+  position="topLeft,#1" yrange="@25,@20
+  position="#2,bottomRight" xrange="0,@40
+--- !spec
+name: Curved Up Arrow
+internalName: CurvedUpArrow
+path: "ar0@22@3@21,,0@4@21@14@22@1@21@7@21@12@2l@13@2@8,0@11@2wa0@22@3@21@10@2@16@24@14@22@1@21@16@24@14,xewr"
+  @14@22@1@21@7@21@16@24nfe
+formulas: |
+  val #0
+  val #1
+  val #2
+  sum #0 width #1
+  prod @3 1 2
+  sum #1 #1 width
+  sum @5 #1 #0
+  prod @6 1 2
+  mid width #0
+  ellipse #2 height @4
+  sum @4 @9 0
+  sum @10 #1 width
+  sum @7 @9 0
+  sum @11 width #0
+  sum @5 0 #0
+  prod @14 1 2
+  mid @4 @7
+  sum #0 #1 width
+  prod @17 1 2
+  sum @16 0 @18
+  val width
+  val height
+  sum 0 0 height
+  sum @16 0 @4
+  ellipse @23 @4 height
+  sum @8 128 0
+  prod @5 1 2
+  sum @5 0 128
+  sum #0 @16 @11
+  sum width 0 #0
+  prod @29 1 2
+  prod height height 1
+  prod #2 #2 1
+  sum @31 0 @32
+  sqrt @33
+  sum @34 height 0
+  prod width height @35
+  sum @36 64 0
+  prod #0 1 2
+  ellipse @30 @38 height
+  sum @39 0 64
+  prod @4 1 2
+  sum #1 0 @41
+  prod height 4390 32768
+  prod height 28378 32768
+adjustments: 12960,19440,7200
+connector: "@8,0;@11,@2;@15,0;@16,@21;@13,@2"
+Connector Angles    270,270,270,90,0
+Text Box Rectangle  "@41,@43,@42,@44
+Handles             position="#0,topLeft" xrange="@37,@27
+  position="#1,topLeft" xrange="@25,@20
+  position="bottomRight,#2" yrange="0,@40
+--- !spec
+name: Curved Down Arrow
+internalName: CurvedDownArrow
+path: "wr,0@3@23,0@22@4,0@15,0@1@23@7,0@13@2l@14@2@8@22@12@2at,0@3@23@11@2@17@26@15,0@1@23@17@26@15@22xewr,0@3@"
+  23@4,0@17@26nfe
+formulas: |
+  val #0
+  val #1
+  val #2
+  sum #0 width #1
+  prod @3 1 2
+  sum #1 #1 width
+  sum @5 #1 #0
+  prod @6 1 2
+  mid width #0
+  sum height 0 #2
+  ellipse @9 height @4
+  sum @4 @10 0
+  sum @11 #1 width
+  sum @7 @10 0
+  sum @12 width #0
+  sum @5 0 #0
+  prod @15 1 2
+  mid @4 @7
+  sum #0 #1 width
+  prod @18 1 2
+  sum @17 0 @19
+  val width
+  val height
+  prod height 2 1
+  sum @17 0 @4
+  ellipse @24 @4 height
+  sum height 0 @25
+  sum @8 128 0
+  prod @5 1 2
+  sum @5 0 128
+  sum #0 @17 @12
+  ellipse @20 @4 height
+  sum width 0 #0
+  prod @32 1 2
+  prod height height 1
+  prod @9 @9 1
+  sum @34 0 @35
+  sqrt @36
+  sum @37 height 0
+  prod width height @38
+  sum @39 64 0
+  prod #0 1 2
+  ellipse @33 @41 height
+  sum height 0 @42
+  sum @43 64 0
+  prod @4 1 2
+  sum #1 0 @45
+  prod height 4390 32768
+  prod height 28378 32768
+adjustments: 12960,19440,14400
+connector: "@17,0;@16,@22;@12,@2;@8,@22;@14,@2"
+Connector Angles    270,90,90,90,0
+Text Box Rectangle  @45,@47,@46,@48
+Handles             position="#0,bottomRight" xrange="@40,@29
+  position="#1,bottomRight" xrange="@27,@21
+  position="bottomRight,#2" yrange="@44,@22
+--- !spec
+name: Striped Right Arrow
+internalName: StripedRightArrow
+path: "m@0,l@0@1,3375@1,3375@2@0@2@0,21600,21600,10800xem1350@1l1350@2,2700@2,2700@1xem0@1l0@2,675@2,675@1xe"
+formulas: |
+  val #0
+  val #1
+  sum height 0 #1
+  sum 10800 0 #1
+  sum width 0 #0
+  prod @4 @3 10800
+  sum width 0 @5
+adjustments: 16200,5400
+connector: "@0,0;0,10800;@0,21600;21600,10800"
+Connector Angles    270,180,90,0
+Text Box Rectangle  3375,@1,@6,@2
+Handles             position="#0,#1" xrange="3375,21600" yrange="0,10800"
+--- !spec
+name: Notched Right Arrow
+internalName: NotchedRightArrow
+path: "m@0,l@0@1,0@1@5,10800,0@2@0@2@0,21600,21600,10800xe"
+formulas: |
+  val #0
+  val #1
+  sum height 0 #1
+  sum 10800 0 #1
+  sum width 0 #0
+  prod @4 @3 10800
+  sum width 0 @5
+adjustments: 16200,5400
+connector: "@0,0;@5,10800;@0,21600;21600,10800"
+Connector Angles    270,180,90,0
+Text Box Rectangle  @5,@1,@6,@2
+Handles             position="#0,#1" xrange="0,21600" yrange="0,10800"
+--- !spec
+name: Pentagon
+internalName: HomePlate
+path: "m@0,l,,,21600@0,21600,21600,10800xe"
+formulas: |
+  val #0
+  prod #0 1 2
+adjustments: 16200
+connector: "@1,0;0,10800;@1,21600;21600,10800"
+Connector Angles    270,180,90,0
+Text Box Rectangle  0,0,10800,21600;0,0,16200,21600;0,0,21600,21600
+Handles             position="#0,topLeft" xrange="0,21600"
+--- !spec
+name: Chevron
+internalName: Chevron
+path: "m@0,l,0@1,10800,,21600@0,21600,21600,10800xe"
+formulas: |
+  val #0
+  sum 21600 0 @0
+  prod #0 1 2
+adjustments: 16200
+connector: "@2,0;@1,10800;@2,21600;21600,10800"
+Connector Angles    270,180,90,0
+Text Box Rectangle  0,0,10800,21600;0,0,16200,21600;0,0,21600,21600
+Handles             position="#0,topLeft" xrange="0,21600"
+--- !spec
+name: Right Arrow Callout
+internalName: RightArrowCallout
+path: "m,l,21600@0,21600@0@5@2@5@2@4,21600,10800@2@1@2@3@0@3@0,x"
+formulas: |
+  val #0
+  val #1
+  val #2
+  val #3
+  sum 21600 0 #1
+  sum 21600 0 #3
+  prod #0 1 2
+adjustments: 14400,5400,18000,8100
+connector: "@6,0;0,10800;@6,21600;21600,10800"
+Connector Angles    270,180,90,0
+Text Box Rectangle  0,0,@0,21600
+Handles             position="#0,topLeft" xrange="0,@2
+  position="bottomRight,#1" yrange="0,@3
+  position="#2,#3" xrange="@0,21600" yrange="@1,10800
+--- !spec
+name: Left Arrow Callout
+internalName: LeftArrowCallout
+path: "m@0,l@0@3@2@3@2@1,,10800@2@4@2@5@0@5@0,21600,21600,21600,21600,xe"
+formulas: |
+  val #0
+  val #1
+  val #2
+  val #3
+  sum 21600 0 #1
+  sum 21600 0 #3
+  sum #0 21600 0
+adjustments: 7200,5400,3600,8100
+connector: "@7,0;0,10800;@7,21600;21600,10800"
+Connector Angles    270,180,90,0
+Text Box Rectangle  @0,0,21600,21600
+Handles             position="#0,topLeft" xrange="@2,21600
+  position="topLeft,#1" yrange="0,@3
+  position="#2,#3" xrange="0,@0" yrange="@1,10800
+--- !spec
+name: Up Arrow Callout
+internalName: UpArrowCallout
+path: "m0@0l@3@0@3@2@1@2,10800,0@4@2@5@2@5@0,21600@0,21600,21600,,21600xe"
+formulas: |
+  val #0
+  val #1
+  val #2
+  val #3
+  sum 21600 0 #1
+  sum 21600 0 #3
+  sum #0 21600 0
+  prod @6 1 2
+adjustments: 7200,5400,3600,8100
+connector: "10800,0;0,@7;10800,21600;21600,@7"
+Connector Angles    270,180,90,0
+Text Box Rectangle  0,@0,21600,21600
+Handles             position="topLeft,#0" yrange="@2,21600
+  position="#1,topLeft" xrange="0,@3
+  position="#3,#2" xrange="@1,10800" yrange="0,@0
+--- !spec
+name: Down Arrow Callout
+internalName: DownArrowCallout
+path: "m,l21600,,21600@0@5@0@5@2@4@2,10800,21600@1@2@3@2@3@0,0@0xe"
+formulas: |
+  val #0
+  val #1
+  val #2
+  val #3
+  sum 21600 0 #1
+  sum 21600 0 #3
+  prod #0 1 2
+adjustments: 14400,5400,18000,8100
+connector: "10800,0;0,@6;10800,21600;21600,@6"
+Connector Angles    270,180,90,0
+Text Box Rectangle  0,0,21600,@0
+Handles             position="topLeft,#0" yrange="0,@2
+  position="#1,bottomRight" xrange="0,@3
+  position="#3,#2" xrange="@1,10800" yrange="@0,21600
+--- !spec
+name: Left-Right Arrow Callout
+internalName: LeftRightArrowCallout
+path: "m@0,l@0@3@2@3@2@1,,10800@2@4@2@5@0@5@0,21600@8,21600@8@5@9@5@9@4,21600,10800@9@1@9@3@8@3@8,xe"
+formulas: |
+  val #0
+  val #1
+  val #2
+  val #3
+  sum 21600 0 #1
+  sum 21600 0 #3
+  sum #0 21600 0
+  prod @6 1 2
+  sum 21600 0 #0
+  sum 21600 0 #2
+adjustments: "5400,5400,2700,8100"
+connector: "10800,0;0,10800;10800,21600;21600,10800"
+Connector Angles    270,180,90,0
+Text Box Rectangle  @0,0,@8,21600
+Handles             position="#0,topLeft" xrange="@2,10800
+  position="topLeft,#1" yrange="0,@3
+  position="#2,#3" xrange="0,@0" yrange="@1,10800
+--- !spec
+name: Up-Down Arrow Callout
+internalName: UpDownArrowCallout
+path: "m0@0l@3@0@3@2@1@2,10800,0@4@2@5@2@5@0,21600@0,21600@8@5@8@5@9@4@9,10800,21600@1@9@3@9@3@8,0@8xe"
+formulas: |
+  val #0
+  val #1
+  val #2
+  val #3
+  sum 21600 0 #1
+  sum 21600 0 #3
+  sum #0 21600 0
+  prod @6 1 2
+  sum 21600 0 #0
+  sum 21600 0 #2
+adjustments: 5400,5400,2700,8100
+connector: "10800,0;0,10800;10800,21600;21600,10800"
+Connector Angles    270,180,90,0
+Text Box Rectangle  0,@0,21600,@8
+Handles             position="topLeft,#0" yrange="@2,10800
+  position="#1,topLeft" xrange="0,@3
+  position="#3,#2" xrange="@1,10800" yrange="0,@0
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+--- !spec
+  
