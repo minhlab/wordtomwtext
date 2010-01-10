@@ -8,10 +8,12 @@ public class ShapeSpec {
 	public String name;
 	public String internalName;
 	public String adjustments;
-	public String connector;
+	public String connectorLocations;
+	public String connectorAngles;
 	public String textbox;
 	public String endcaps;
 	public String handles;
+	public String limo;
 
 	public ShapeSpec() {
 	}
